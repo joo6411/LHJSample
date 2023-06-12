@@ -1,4 +1,3 @@
-/*
 #include "IOCPServer.h"
 
 IOCPServer::IOCPServer()
@@ -20,7 +19,6 @@ bool IOCPServer::Init()
     {   // Load Winsock 2.2 DLL
         ErrorHandling("WSAStartup() error!");
     }
-
 
     // Completion Port 생성
     m_hCompletionPort = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, 0);
@@ -44,7 +42,7 @@ void IOCPServer::Cleanup()
 bool IOCPServer::setSocket()
 {
     // IOCP를 사용하기 위한 소켓 생성 (Overlapped I/O 소켓, 윈도우용)
-    m_hServSock = WSASocket(PF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
+    m_hServSock = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
     if (m_hServSock == INVALID_SOCKET)
     {
         ErrorHandling("WSASocket() error!");
@@ -95,22 +93,21 @@ bool IOCPServer::Run()
         memcpy(&(perHandleData->clntAddr), &clntAddr, nAddrLen);
 
         // 3. Overlapped 소켓과 Completion Port 의 연결
-        CreateIoCompletionPort((HANDLE)hClntSock, m_hCompletionPort, (DWORD)perHandleData, 0);
+        CreateIoCompletionPort((HANDLE)hClntSock, m_hCompletionPort, (ULONG_PTR)perHandleData, 0);
 
         // 클라이언트를 위한 버퍼를 설정, OVERLAPPED 변수 초기화
         perIoData = new PER_IO_DATA;
         memset(&(perIoData->overlapped), 0, sizeof(OVERLAPPED));
         perIoData->wsaBuf.len = BUFSIZE;
         perIoData->wsaBuf.buf = perIoData->buffer;
-        perIoData->rwMode = READ;
         dwFlags = 0;
 
         // 4. 중첩된 데이타 입력
         WSARecv(perHandleData->hClntSock,       // 데이타 입력 소켓
             &(perIoData->wsaBuf),               // 데이타 입력 버퍼 포인터
             1,                                  // 데이타 입력 버퍼의 수
-            &dwRecvBytes,
-            &dwFlags,
+            (LPDWORD)&dwRecvBytes,
+            (LPDWORD)&dwFlags,
             &(perIoData->overlapped),           // OVERLAPPED 변수 포인터
             NULL
         );
@@ -142,47 +139,33 @@ UINT WINAPI IOCPServer::CompletionThread()
         GetQueuedCompletionStatus(hCompletionPort,      // Completion Port
             &dwBytesTransferred,    // 전송된 바이트 수
             (PULONG_PTR)&perHandleData,
-            //(LPDWORD)&perHandleData,
             (LPOVERLAPPED*)&perIoData,
             INFINITE);
 
-        //printf("GQCS error code : %d (TID : %d)\n", GetLastError(), GetCurrentThreadId());
-
-        if (perIoData->rwMode == READ)
+        if (dwBytesTransferred == 0)        // 전송된 바이트가 0일때 종료 (EOF 전송 시에도)
         {
-            puts("message received!");
-            if (dwBytesTransferred == 0)        // 전송된 바이트가 0일때 종료 (EOF 전송 시에도)
-            {
-                puts("socket will be closed!");
-                closesocket(perHandleData->hClntSock);
-
-                delete perHandleData;
-                delete perIoData;
-
-                continue;
-            }
-
-            // 6. 메세지. 클라이언트로 에코
-            memset(&(perIoData->overlapped), 0, sizeof(OVERLAPPED));
-            perIoData->wsaBuf.len = dwBytesTransferred;
-            perIoData->rwMode = WRITE;
-            DWORD bytes = 0;
-            WSASend(perHandleData->hClntSock, &(perIoData->wsaBuf), 1, &bytes, 0, &(perIoData->overlapped), nullptr);
-
-            // RECEIVE AGAIN
-            perIoData = new PER_IO_DATA();
-            memset(&(perIoData->overlapped), 0, sizeof(OVERLAPPED));
-            perIoData->wsaBuf.len = BUFSIZE;
-            perIoData->wsaBuf.buf = perIoData->buffer;
-            perIoData->rwMode = READ;
-            dwFlags = 0;
-            WSARecv(perHandleData->hClntSock, &(perIoData->wsaBuf), 1, NULL, &dwFlags, &(perIoData->overlapped), NULL);
-        }
-        else // WRITE Mode
-        {
-            puts("message sent!");
+            puts("socket will be closed!");
+            closesocket(perHandleData->hClntSock);
+            delete perHandleData;
             delete perIoData;
+            continue;
         }
+
+        perIoData->wsaBuf.buf[dwBytesTransferred] = '\0';
+        printf("Recv[%s]\n", perIoData->wsaBuf.buf);
+
+        // 6. 메세지. 클라이언트로 에코
+        //memset(&(perIoData->overlapped), 0, sizeof(OVERLAPPED));
+        perIoData->wsaBuf.len = dwBytesTransferred;
+        DWORD bytes = 0;
+        WSASend(perHandleData->hClntSock, &(perIoData->wsaBuf), 1, &bytes, 0, NULL, nullptr);
+
+        // RECEIVE AGAIN
+        memset(&(perIoData->overlapped), 0, sizeof(OVERLAPPED));
+        perIoData->wsaBuf.len = BUFSIZE;
+        perIoData->wsaBuf.buf = perIoData->buffer;
+        dwFlags = 0;
+        WSARecv(perHandleData->hClntSock, &(perIoData->wsaBuf), 1, NULL, &dwFlags, &(perIoData->overlapped), NULL);
     }
 
     return 0;
@@ -195,4 +178,3 @@ void ErrorHandling(LPCSTR pszMessage)
     fputc('\n', stderr);
     exit(1);
 }
-*/

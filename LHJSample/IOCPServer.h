@@ -1,4 +1,3 @@
-/*
 #pragma comment(lib, "ws2_32")
 #include <Ws2tcpip.h>
 #include <thread>
@@ -8,11 +7,7 @@
 #include <string.h>
 #include <process.h>
 #include <winsock2.h>
-
-#define PORT        5000
-#define BUFSIZE     1024
-#define READ        3
-#define WRITE       5
+#include <Protocol.h>
 
 ///////////////////////////////////////////////
 // Structure Definition
@@ -27,7 +22,6 @@ typedef struct          // 소켓의 버퍼 정보를 구조체화
     OVERLAPPED overlapped;
     CHAR       buffer[BUFSIZE];
     WSABUF     wsaBuf;
-    int        rwMode;
 } PER_IO_DATA, * LPPER_IO_DATA;
 
 
@@ -57,4 +51,3 @@ private:
 //////////////////////////////////////////
 // Function forward declaration
 void ErrorHandling(LPCSTR pszMessage);
-*/
