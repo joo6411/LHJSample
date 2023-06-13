@@ -27,6 +27,7 @@ struct stOverlappedEx
 //클라이언트 정보를 담기위한 구조체
 struct stClientInfo
 {
+	INT32 mIndex = 0;
 	SOCKET			m_socketClient;			//Cliet와 연결되는 소켓
 	stOverlappedEx	m_stRecvOverlappedEx;	//RECV Overlapped I/O작업을 위한 변수
 	stOverlappedEx	m_stSendOverlappedEx;	//SEND Overlapped I/O작업을 위한 변수
@@ -43,11 +44,11 @@ struct stClientInfo
 };
 
 
-class IOCompletionPort
+class IOCPServer
 {
 public:
-	IOCompletionPort();
-	~IOCompletionPort();
+	IOCPServer();
+	~IOCPServer();
 
 	bool InitSocket();
 
@@ -59,6 +60,11 @@ public:
 	bool StartServer(const UINT32 maxClientCount);
 	//생성되어있는 쓰레드를 파괴한다.
 	void DestroyThread();
+
+	// 네트워크 이벤트를 처리할 함수들
+	virtual void OnConnect(const UINT32 clientIndex_) {}
+	virtual void OnClose(const UINT32 clientIndex_) {}
+	virtual void OnReceive(const UINT32 clientIndex_, const UINT32 size_, char* pData_) {}
 
 private:
 	void CreateClient(const UINT32 maxClientCount);
@@ -73,7 +79,7 @@ private:
 	stClientInfo* GetEmptyClientInfo();
 
 	//CompletionPort객체와 소켓과 CompletionKey를 연결시키는 역할을 한다.
-	bool BindIOCompletionPort(stClientInfo* pClientInfo);
+	bool BindIOCPServer(stClientInfo* pClientInfo);
 
 	//WSARecv Overlapped I/O 작업을 시킨다.
 	bool BindRecv(stClientInfo* pClientInfo);

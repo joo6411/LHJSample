@@ -1,16 +1,16 @@
-#include "IOCompletionPort.h"
+#include "IOCPServer.h"
 
-IOCompletionPort::IOCompletionPort()
+IOCPServer::IOCPServer()
 {
 }
 
-IOCompletionPort::~IOCompletionPort()
+IOCPServer::~IOCPServer()
 {
     //윈속의 사용을 끝낸다.
     WSACleanup();
 }
 
-bool IOCompletionPort::InitSocket()
+bool IOCPServer::InitSocket()
 {
     WSADATA wsaData;
 
@@ -34,7 +34,7 @@ bool IOCompletionPort::InitSocket()
     return true;
 }
 
-bool IOCompletionPort::BindandListen(int nBindPort)
+bool IOCPServer::BindandListen(int nBindPort)
 {
     SOCKADDR_IN		stServerAddr;
     stServerAddr.sin_family = AF_INET;
@@ -44,7 +44,7 @@ bool IOCompletionPort::BindandListen(int nBindPort)
     //그 주소를 inet_addr함수를 이용해 넣으면 된다.
     stServerAddr.sin_addr.s_addr = htonl(INADDR_ANY);
 
-    //위에서 지정한 서버 주소 정보와 cIOCompletionPort 소켓을 연결한다.
+    //위에서 지정한 서버 주소 정보와 cIOCPServer 소켓을 연결한다.
     int nRet = bind(mListenSocket, (SOCKADDR*)&stServerAddr, sizeof(SOCKADDR_IN));
     if (0 != nRet)
     {
@@ -52,7 +52,7 @@ bool IOCompletionPort::BindandListen(int nBindPort)
         return false;
     }
 
-    //접속 요청을 받아들이기 위해 cIOCompletionPort소켓을 등록하고 
+    //접속 요청을 받아들이기 위해 cIOCPServer소켓을 등록하고 
     //접속대기큐를 5개로 설정 한다.
     nRet = listen(mListenSocket, 5);
     if (0 != nRet)
@@ -66,7 +66,7 @@ bool IOCompletionPort::BindandListen(int nBindPort)
 }
 
 //접속 요청을 수락하고 메세지를 받아서 처리하는 함수
-bool IOCompletionPort::StartServer(const UINT32 maxClientCount)
+bool IOCPServer::StartServer(const UINT32 maxClientCount)
 {
     CreateClient(maxClientCount);
 
@@ -74,7 +74,7 @@ bool IOCompletionPort::StartServer(const UINT32 maxClientCount)
     mIOCPHandle = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, NULL, MAX_WORKERTHREAD);
     if (NULL == mIOCPHandle)
     {
-        printf("[에러] CreateIoCompletionPort()함수 실패: %d\n", GetLastError());
+        printf("[에러] CreateIOCPServer()함수 실패: %d\n", GetLastError());
         return false;
     }
 
@@ -94,7 +94,7 @@ bool IOCompletionPort::StartServer(const UINT32 maxClientCount)
 }
 
 //생성되어있는 쓰레드를 파괴한다.
-void IOCompletionPort::DestroyThread()
+void IOCPServer::DestroyThread()
 {
     mIsWorkerRun = false;
     CloseHandle(mIOCPHandle);
@@ -117,16 +117,17 @@ void IOCompletionPort::DestroyThread()
     }
 }
 
-void IOCompletionPort::CreateClient(const UINT32 maxClientCount)
+void IOCPServer::CreateClient(const UINT32 maxClientCount)
 {
-    for (UINT32 i = 0; i < maxClientCount; ++i)
-    {
-        mClientInfos.emplace_back();
-    }
+	for (UINT32 i = 0; i < maxClientCount; ++i)
+	{
+		mClientInfos.emplace_back();
+		mClientInfos[i].mIndex = i;
+	}
 }
 
 //WaitingThread Queue에서 대기할 쓰레드들을 생성
-bool IOCompletionPort::CreateWokerThread()
+bool IOCPServer::CreateWokerThread()
 {
     unsigned int uiThreadId = 0;
     //WaingThread Queue에 대기 상태로 넣을 쓰레드들 생성 권장되는 개수 : (cpu개수 * 2) + 1 
@@ -139,7 +140,7 @@ bool IOCompletionPort::CreateWokerThread()
     return true;
 }
 
-bool IOCompletionPort::CreateAccepterThread()
+bool IOCPServer::CreateAccepterThread()
 {
     mAccepterThread = std::thread([this]() { AccepterThread(); });
 
@@ -148,7 +149,7 @@ bool IOCompletionPort::CreateAccepterThread()
 }
 
 //사용하지 않는 클라이언트 정보 구조체를 반환한다.
-stClientInfo* IOCompletionPort::GetEmptyClientInfo()
+stClientInfo* IOCPServer::GetEmptyClientInfo()
 {
 	for (auto& client : mClientInfos)
 	{
@@ -162,7 +163,7 @@ stClientInfo* IOCompletionPort::GetEmptyClientInfo()
 }
 
 //CompletionPort객체와 소켓과 CompletionKey를 연결시키는 역할을 한다.
-bool IOCompletionPort::BindIOCompletionPort(stClientInfo* pClientInfo)
+bool IOCPServer::BindIOCPServer(stClientInfo* pClientInfo)
 {
 	//socket과 pClientInfo를 CompletionPort객체와 연결시킨다.
 	auto hIOCP = CreateIoCompletionPort((HANDLE)pClientInfo->m_socketClient
@@ -171,7 +172,7 @@ bool IOCompletionPort::BindIOCompletionPort(stClientInfo* pClientInfo)
 
 	if (NULL == hIOCP || mIOCPHandle != hIOCP)
 	{
-		printf("[에러] CreateIoCompletionPort()함수 실패: %d\n", GetLastError());
+		printf("[에러] CreateIOCPServer()함수 실패: %d\n", GetLastError());
 		return false;
 	}
 
@@ -179,7 +180,7 @@ bool IOCompletionPort::BindIOCompletionPort(stClientInfo* pClientInfo)
 }
 
 //WSARecv Overlapped I/O 작업을 시킨다.
-bool IOCompletionPort::BindRecv(stClientInfo* pClientInfo)
+bool IOCPServer::BindRecv(stClientInfo* pClientInfo)
 {
 	DWORD dwFlag = 0;
 	DWORD dwRecvNumBytes = 0;
@@ -208,7 +209,7 @@ bool IOCompletionPort::BindRecv(stClientInfo* pClientInfo)
 }
 
 //WSASend Overlapped I/O작업을 시킨다.
-bool IOCompletionPort::SendMsg(stClientInfo* pClientInfo, char* pMsg, int nLen)
+bool IOCPServer::SendMsg(stClientInfo* pClientInfo, char* pMsg, int nLen)
 {
 	DWORD dwRecvNumBytes = 0;
 
@@ -240,7 +241,7 @@ bool IOCompletionPort::SendMsg(stClientInfo* pClientInfo, char* pMsg, int nLen)
 
 //Overlapped I/O작업에 대한 완료 통보를 받아 
 //그에 해당하는 처리를 하는 함수
-void IOCompletionPort::WokerThread()
+void IOCPServer::WokerThread()
 {
 	//CompletionKey를 받을 포인터 변수
 	stClientInfo* pClientInfo = NULL;
@@ -293,8 +294,9 @@ void IOCompletionPort::WokerThread()
 		//Overlapped I/O Recv작업 결과 뒤 처리
 		if (IOOperation::RECV == pOverlappedEx->m_eOperation)
 		{
-			pClientInfo->mRecvBuf[dwIoSize] = NULL;
-			printf("[수신] bytes : %d , msg : %s\n", dwIoSize, pClientInfo->mRecvBuf);
+			OnReceive(pClientInfo->mIndex, dwIoSize, pClientInfo->mRecvBuf);
+			//pClientInfo->mRecvBuf[dwIoSize] = NULL;
+			//printf("[수신] bytes : %d , msg : %s\n", dwIoSize, pClientInfo->mRecvBuf);
 
 			//클라이언트에 메세지를 에코한다.
 			SendMsg(pClientInfo, pClientInfo->mRecvBuf, dwIoSize);
@@ -314,7 +316,7 @@ void IOCompletionPort::WokerThread()
 }
 
 //사용자의 접속을 받는 쓰레드
-void IOCompletionPort::AccepterThread()
+void IOCPServer::AccepterThread()
 {
 	SOCKADDR_IN		stClientAddr;
 	int nAddrLen = sizeof(SOCKADDR_IN);
@@ -337,7 +339,7 @@ void IOCompletionPort::AccepterThread()
 		}
 
 		//I/O Completion Port객체와 소켓을 연결시킨다.
-		bool bRet = BindIOCompletionPort(pClientInfo);
+		bool bRet = BindIOCPServer(pClientInfo);
 		if (false == bRet)
 		{
 			return;
@@ -350,9 +352,13 @@ void IOCompletionPort::AccepterThread()
 			return;
 		}
 
+		/*
 		char clientIP[32] = { 0, };
 		inet_ntop(AF_INET, &(stClientAddr.sin_addr), clientIP, 32 - 1);
 		printf("클라이언트 접속 : IP(%s) SOCKET(%d)\n", clientIP, (int)pClientInfo->m_socketClient);
+		*/
+
+		OnConnect(pClientInfo->mIndex);
 
 		//클라이언트 갯수 증가
 		++mClientCnt;
@@ -360,8 +366,9 @@ void IOCompletionPort::AccepterThread()
 }
 
 //소켓의 연결을 종료 시킨다.
-void IOCompletionPort::CloseSocket(stClientInfo* pClientInfo, bool bIsForce)
+void IOCPServer::CloseSocket(stClientInfo* pClientInfo, bool bIsForce)
 {
+	auto clientIndex = pClientInfo->mIndex;
 	struct linger stLinger = { 0, 0 };	// SO_DONTLINGER로 설정
 
 	// bIsForce가 true이면 SO_LINGER, timeout = 0으로 설정하여 강제 종료 시킨다. 주의 : 데이터 손실이 있을수 있음 
@@ -380,4 +387,6 @@ void IOCompletionPort::CloseSocket(stClientInfo* pClientInfo, bool bIsForce)
 	closesocket(pClientInfo->m_socketClient);
 
 	pClientInfo->m_socketClient = INVALID_SOCKET;
+
+	OnClose(clientIndex);
 }
