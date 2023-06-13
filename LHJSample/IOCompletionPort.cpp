@@ -186,7 +186,7 @@ bool IOCompletionPort::BindRecv(stClientInfo* pClientInfo)
 
 	//Overlapped I/O을 위해 각 정보를 셋팅해 준다.
 	pClientInfo->m_stRecvOverlappedEx.m_wsaBuf.len = MAX_SOCKBUF;
-	pClientInfo->m_stRecvOverlappedEx.m_wsaBuf.buf = pClientInfo->m_stRecvOverlappedEx.m_szBuf;
+	pClientInfo->m_stRecvOverlappedEx.m_wsaBuf.buf = pClientInfo->mRecvBuf;
 	pClientInfo->m_stRecvOverlappedEx.m_eOperation = IOOperation::RECV;
 
 	int nRet = WSARecv(pClientInfo->m_socketClient,
@@ -213,12 +213,12 @@ bool IOCompletionPort::SendMsg(stClientInfo* pClientInfo, char* pMsg, int nLen)
 	DWORD dwRecvNumBytes = 0;
 
 	//전송될 메세지를 복사
-	CopyMemory(pClientInfo->m_stSendOverlappedEx.m_szBuf, pMsg, nLen);
-
+	CopyMemory(pClientInfo->mSendBuf, pMsg, nLen);
+	pClientInfo->mSendBuf[nLen] = '\0';
 
 	//Overlapped I/O을 위해 각 정보를 셋팅해 준다.
 	pClientInfo->m_stSendOverlappedEx.m_wsaBuf.len = nLen;
-	pClientInfo->m_stSendOverlappedEx.m_wsaBuf.buf = pClientInfo->m_stSendOverlappedEx.m_szBuf;
+	pClientInfo->m_stSendOverlappedEx.m_wsaBuf.buf = pClientInfo->mRecvBuf;
 	pClientInfo->m_stSendOverlappedEx.m_eOperation = IOOperation::SEND;
 
 	int nRet = WSASend(pClientInfo->m_socketClient,
@@ -293,17 +293,17 @@ void IOCompletionPort::WokerThread()
 		//Overlapped I/O Recv작업 결과 뒤 처리
 		if (IOOperation::RECV == pOverlappedEx->m_eOperation)
 		{
-			pOverlappedEx->m_szBuf[dwIoSize] = NULL;
-			printf("[수신] bytes : %d , msg : %s\n", dwIoSize, pOverlappedEx->m_szBuf);
+			pClientInfo->mRecvBuf[dwIoSize] = NULL;
+			printf("[수신] bytes : %d , msg : %s\n", dwIoSize, pClientInfo->mRecvBuf);
 
 			//클라이언트에 메세지를 에코한다.
-			SendMsg(pClientInfo, pOverlappedEx->m_szBuf, dwIoSize);
+			SendMsg(pClientInfo, pClientInfo->mRecvBuf, dwIoSize);
 			BindRecv(pClientInfo);
 		}
 		//Overlapped I/O Send작업 결과 뒤 처리
 		else if (IOOperation::SEND == pOverlappedEx->m_eOperation)
 		{
-			printf("[송신] bytes : %d , msg : %s\n", dwIoSize, pOverlappedEx->m_szBuf);
+			printf("[송신] bytes : %d , msg : %s\n", dwIoSize, pClientInfo->mRecvBuf);
 		}
 		//예외 상황
 		else
