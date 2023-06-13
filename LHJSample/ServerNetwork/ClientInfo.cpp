@@ -1,4 +1,5 @@
 #include "ClientInfo.h"
+#include <mswsock.h>
 
 ClientInfo::ClientInfo()
 {
@@ -19,6 +20,60 @@ bool ClientInfo::OnConnect(HANDLE iocpHandle_, SOCKET socket_)
 	}
 
 	return BindRecv();
+}
+
+bool ClientInfo::PostAccept(SOCKET listenSock_, const UINT64 curTimeSec_)
+{
+	//printf_s("PostAccept. client Index: %d\n", GetIndex());
+
+	mLatestClosedTimeSec = UINT32_MAX;
+
+	mSock = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_IP,
+		NULL, 0, WSA_FLAG_OVERLAPPED);
+	if (INVALID_SOCKET == mSock)
+	{
+		printf_s("client Socket WSASocket Error : %d\n", GetLastError());
+		return false;
+	}
+
+	ZeroMemory(&mAcceptContext, sizeof(stOverlappedEx));
+
+	DWORD bytes = 0;
+	DWORD flags = 0;
+	mAcceptContext.m_wsaBuf.len = 0;
+	mAcceptContext.m_wsaBuf.buf = nullptr;
+	mAcceptContext.m_eOperation = IOOperation::ACCEPT;
+	mAcceptContext.SessionIndex = mIndex;
+
+	if (FALSE == AcceptEx(listenSock_, mSock, mAcceptBuf, 0,
+		sizeof(SOCKADDR_IN) + 16, sizeof(SOCKADDR_IN) + 16, &bytes, (LPWSAOVERLAPPED) & (mAcceptContext)))
+	{
+		if (WSAGetLastError() != WSA_IO_PENDING)
+		{
+			printf_s("AcceptEx Error : %d\n", GetLastError());
+			return false;
+		}
+	}
+
+	return true;
+}
+
+bool ClientInfo::AcceptCompletion()
+{
+	printf_s("AcceptCompletion : SessionIndex(%d)\n", mIndex);
+
+	if (OnConnect(mIOCPHandle, mSock) == false)
+	{
+		return false;
+	}
+
+	SOCKADDR_IN		stClientAddr;
+	int nAddrLen = sizeof(SOCKADDR_IN);
+	char clientIP[32] = { 0, };
+	inet_ntop(AF_INET, &(stClientAddr.sin_addr), clientIP, 32 - 1);
+	printf("클라이언트 접속 : IP(%s) SOCKET(%d)\n", clientIP, (int)mSock);
+
+	return true;
 }
 
 void ClientInfo::Close(bool bIsForce)

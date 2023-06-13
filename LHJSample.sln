@@ -7,8 +7,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LHJSampleServer", "LHJSampl
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LHJSampleClient", "LHJSampleClient\LHJSampleClient.vcxproj", "{59C254D1-58FF-4E39-A10C-4A0E7EF81E3F}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ShareProject", "ShareProject\ShareProject.vcxitems", "{B4B1BDC1-6CEF-4419-B6FE-DD38ED014CDD}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -49,10 +47,5 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {54DEEFE6-F875-4D9B-8A87-9455ACDA5446}
-	EndGlobalSection
-	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		ShareProject\ShareProject.vcxitems*{59c254d1-58ff-4e39-a10c-4a0e7ef81e3f}*SharedItemsImports = 4
-		ShareProject\ShareProject.vcxitems*{b4b1bdc1-6cef-4419-b6fe-dd38ed014cdd}*SharedItemsImports = 9
-		ShareProject\ShareProject.vcxitems*{d6ef5545-e99b-4478-9c11-673d3b3f9437}*SharedItemsImports = 4
 	EndGlobalSection
 EndGlobal
