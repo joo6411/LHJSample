@@ -14,11 +14,7 @@ public:
     bool Init();
     void Cleanup();
 
-    static unsigned int __stdcall _CompletionThread(void* p_this);
-    UINT WINAPI CompletionThread();
-
 private:
-    //HANDLE  m_hCompletionPort;
     SOCKET m_hClientSock;
     SOCKADDR_IN m_ClientAddr;
 };
