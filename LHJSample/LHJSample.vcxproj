@@ -132,10 +132,14 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ServerNetwork\IOCPServer.cpp" />
     <ClCompile Include="EchoServer.cpp" />
+    <ClCompile Include="ServerNetwork\ClientInfo.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ServerNetwork\IOCPServer.h" />
     <ClInclude Include="EchoServer.h" />
+    <ClInclude Include="Packet.h" />
+    <ClInclude Include="ServerNetwork\ClientInfo.h" />
+    <ClInclude Include="ServerNetwork\Define.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
