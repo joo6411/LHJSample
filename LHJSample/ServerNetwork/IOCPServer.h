@@ -41,6 +41,8 @@ private:
 	//accept요청을 처리하는 쓰레드 생성
 	bool CreateAccepterThread();
 
+	void CreateSendThread();
+
 	//사용하지 않는 클라이언트 정보 구조체를 반환한다.
 	ClientInfo* GetEmptyClientInfo();
 
@@ -56,8 +58,10 @@ private:
 	//소켓의 연결을 종료 시킨다.
 	void CloseSocket(ClientInfo* pClientInfo, bool bIsForce = false);
 
+	void SendThread();
+
 	//클라이언트 정보 저장 구조체
-	std::vector<ClientInfo> mClientInfos;
+	std::vector<ClientInfo*> mClientInfos;
 
 	//클라이언트의 접속을 받기위한 리슨 소켓
 	SOCKET		mListenSocket = INVALID_SOCKET;
@@ -81,4 +85,8 @@ private:
 	bool		mIsAccepterRun = true;
 	//소켓 버퍼
 	char		mSocketBuf[1024] = { 0, };
+
+	//Send 쓰레드
+	bool		mIsSenderRun = false;
+	std::thread	mSendThread;
 };

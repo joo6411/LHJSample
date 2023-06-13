@@ -125,8 +125,9 @@ void IOCPServer::CreateClient(const UINT32 maxClientCount)
 {
 	for (UINT32 i = 0; i < maxClientCount; ++i)
 	{
-		mClientInfos.emplace_back();
-		mClientInfos[i].Init(i);
+		auto client = new ClientInfo();
+		client->Init(i);
+		mClientInfos.push_back(client);
 	}
 }
 
@@ -152,14 +153,21 @@ bool IOCPServer::CreateAccepterThread()
     return true;
 }
 
+void IOCPServer::CreateSendThread()
+{
+	mIsSenderRun = true;
+	mSendThread = std::thread([this]() { SendThread(); });
+	printf("SendThread 시작..\n");
+}
+
 //사용하지 않는 클라이언트 정보 구조체를 반환한다.
 ClientInfo* IOCPServer::GetEmptyClientInfo()
 {
 	for (auto& client : mClientInfos)
 	{
-		if (!client.IsConnectd())
+		if (!client->IsConnectd())
 		{
-			return &client;
+			return client;
 		}
 	}
 
@@ -168,7 +176,7 @@ ClientInfo* IOCPServer::GetEmptyClientInfo()
 
 ClientInfo* IOCPServer::GetClientInfo(const UINT32 sessionIndex)
 {
-	return &mClientInfos[sessionIndex];
+	return mClientInfos[sessionIndex];
 }
 
 //Overlapped I/O작업에 대한 완료 통보를 받아 
@@ -294,4 +302,22 @@ void IOCPServer::CloseSocket(ClientInfo* pClientInfo, bool bIsForce)
 	pClientInfo->Close(bIsForce);
 
 	OnClose(clientIndex);
+}
+
+void IOCPServer::SendThread()
+{
+	while (mIsSenderRun)
+	{
+		for (auto client : mClientInfos)
+		{
+			if (client->IsConnectd() == false)
+			{
+				continue;
+			}
+
+			client->SendIO();
+		}
+
+		std::this_thread::sleep_for(std::chrono::milliseconds(8));
+	}
 }

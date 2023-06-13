@@ -109,7 +109,46 @@ bool ClientInfo::SendMsg(const UINT32 dataSize_, char* pMsg_)
 	return true;
 }
 
+bool ClientInfo::SendIO()
+{
+	if (mSendPos <= 0 || mIsSending)
+	{
+		return true;
+	}
+
+	std::lock_guard<std::mutex> guard(mSendLock);
+
+	mIsSending = true;
+
+	CopyMemory(mSendingBuf, &mSendBuf[0], mSendPos);
+
+	//Overlapped I/O을 위해 각 정보를 셋팅해 준다.
+	mSendOverlappedEx.m_wsaBuf.len = mSendPos;
+	mSendOverlappedEx.m_wsaBuf.buf = &mSendingBuf[0];
+	mSendOverlappedEx.m_eOperation = IOOperation::SEND;
+
+	DWORD dwRecvNumBytes = 0;
+	int nRet = WSASend(mSock,
+		&(mSendOverlappedEx.m_wsaBuf),
+		1,
+		&dwRecvNumBytes,
+		0,
+		(LPWSAOVERLAPPED) & (mSendOverlappedEx),
+		NULL);
+
+	//socket_error이면 client socket이 끊어진걸로 처리한다.
+	if (nRet == SOCKET_ERROR && (WSAGetLastError() != ERROR_IO_PENDING))
+	{
+		printf("[에러] WSASend()함수 실패 : %d\n", WSAGetLastError());
+		return false;
+	}
+
+	mSendPos = 0;
+	return true;
+}
+
 void ClientInfo::SendCompleted(const UINT32 dataSize_)
 {
+	mIsSending = false;
 	printf("[송신 완료] bytes : %d\n", dataSize_);
 }
