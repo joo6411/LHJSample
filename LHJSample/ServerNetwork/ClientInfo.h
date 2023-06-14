@@ -5,7 +5,6 @@
 #include <mutex>
 #include <queue>
 
-//클라이언트 정보를 담기위한 구조체
 class ClientInfo
 {
 public:
@@ -25,7 +24,6 @@ public:
 	bool BindIOCompletionPort(HANDLE iocpHandle_);
 	bool BindRecv();
 
-	// 1개의 스레드에서만 호출해야 한다!
 	bool SendMsg(const UINT32 dataSize_, char* pMsg_);
 	void SendCompleted(const UINT32 dataSize_);
 	bool SendIO();

@@ -129,15 +129,21 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ServerNetwork\IOCPServer.cpp" />
-    <ClCompile Include="EchoServer.cpp" />
+    <ClCompile Include="ChatServer.cpp" />
     <ClCompile Include="ServerNetwork\ClientInfo.cpp" />
+    <ClCompile Include="PacketManager.cpp" />
+    <ClCompile Include="UserManager.cpp" />
+    <ClCompile Include="User.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ServerNetwork\IOCPServer.h" />
-    <ClInclude Include="EchoServer.h" />
+    <ClInclude Include="ChatServer.h" />
     <ClInclude Include="Packet.h" />
     <ClInclude Include="ServerNetwork\ClientInfo.h" />
     <ClInclude Include="ServerNetwork\Define.h" />
+    <ClInclude Include="PacketManager.h" />
+    <ClInclude Include="UserManager.h" />
+    <ClInclude Include="User.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -2,14 +2,16 @@
 
 #include "ServerNetwork/IOCPServer.h"
 #include "Packet.h"
+#include "PacketManager.h"
 #include <deque>
 #include <mutex>
 
-class EchoServer : public IOCPServer
+
+class ChatServer : public IOCPServer
 {
 public:
-	EchoServer() = default;
-	virtual ~EchoServer() = default;
+	ChatServer() = default;
+	virtual ~ChatServer() = default;
 
 	virtual void OnConnect(const UINT32 clientIndex_) override;
 	virtual void OnClose(const UINT32 clientIndex_) override;
@@ -19,11 +21,5 @@ public:
 	void End();
 
 private:
-	void ProcessPacket();
-	PacketData DequePacketData();
-
-	bool mIsRunProcessThread = false;
-	std::thread mProcessThread;
-	std::mutex mLock;
-	std::deque<PacketData> mPacketDataQueue;
+	std::unique_ptr<PacketManager> m_pPacketManager;
 };
