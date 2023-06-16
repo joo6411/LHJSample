@@ -104,10 +104,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>C:\Users\joo64\source\repos\LHJSample\thirdparty\hiredis;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>C:\Users\joo64\source\repos\LHJSample\thirdparty\hiredis\VS-IDE\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -134,6 +137,7 @@
     <ClCompile Include="PacketManager.cpp" />
     <ClCompile Include="UserManager.cpp" />
     <ClCompile Include="User.cpp" />
+    <ClCompile Include="RedisManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ServerNetwork\IOCPServer.h" />
@@ -144,6 +148,9 @@
     <ClInclude Include="PacketManager.h" />
     <ClInclude Include="UserManager.h" />
     <ClInclude Include="User.h" />
+    <ClInclude Include="RedisManager.h" />
+    <ClInclude Include="RedisTaskDefine.h" />
+    <ClInclude Include="ErrorCode.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -3,6 +3,7 @@
 
 #include "UserManager.h"
 #include "PacketManager.h"
+#include "RedisManager.h"
 
 
 void PacketManager::Init(const UINT32 maxClient_)
@@ -11,9 +12,14 @@ void PacketManager::Init(const UINT32 maxClient_)
 
 	mRecvFuntionDictionary[(int)PACKET_ID::SYS_USER_CONNECT] = &PacketManager::ProcessUserConnect;
 	mRecvFuntionDictionary[(int)PACKET_ID::SYS_USER_DISCONNECT] = &PacketManager::ProcessUserDisConnect;
+	
 	mRecvFuntionDictionary[(int)PACKET_ID::LOGIN_REQUEST] = &PacketManager::ProcessLogin;
+	mRecvFuntionDictionary[(int)RedisTaskID::RESPONSE_LOGIN] = &PacketManager::ProcessLoginDBResult;
+
 
 	CreateComponent(maxClient_);
+	mRedisMgr = new RedisManager;// std::make_unique<RedisManager>();
+	mRedisMgr->Init();
 }
 
 void PacketManager::CreateComponent(const UINT32 maxClient_)
@@ -24,6 +30,11 @@ void PacketManager::CreateComponent(const UINT32 maxClient_)
 
 bool PacketManager::Run()
 {
+	if (mRedisMgr->Run("127.0.0.1", 6379, 1) == false)
+	{
+		return false;
+	}
+
 	//이 부분을 패킷 처리 부분으로 이동 시킨다.
 	mIsRunProcessThread = true;
 	mProcessThread = std::thread([this]() { ProcessPacket(); });
@@ -33,6 +44,8 @@ bool PacketManager::Run()
 
 void PacketManager::End()
 {
+	mRedisMgr->End();
+
 	mIsRunProcessThread = false;
 
 	if (mProcessThread.joinable())
@@ -66,6 +79,14 @@ void PacketManager::ProcessPacket()
 		{
 			isIdle = false;
 			ProcessRecvPacket(packetData.ClientIndex, packetData.PacketId, packetData.DataSize, packetData.pDataPtr);
+		}
+
+		auto task = mRedisMgr->TakeResponseTask();
+		if (task.TaskID != RedisTaskID::INVALID)
+		{
+			isIdle = false;
+			ProcessRecvPacket(task.UserIndex, (UINT16)task.TaskID, task.DataSize, task.pData);
+			task.Release();
 		}
 
 		if (isIdle)
@@ -130,7 +151,6 @@ void PacketManager::ProcessRecvPacket(const UINT32 clientIndex_, const UINT16 pa
 	{
 		(this->*(iter->second))(clientIndex_, packetSize_, pPacket_);
 	}
-
 }
 
 
@@ -174,8 +194,19 @@ void PacketManager::ProcessLogin(UINT32 clientIndex_, UINT16 packetSize_, char* 
 	//여기에서 이미 접속된 유저인지 확인하고, 접속된 유저라면 실패한다.
 	if (mUserManager->FindUserIndexByID(pUserID) == -1)
 	{
-		loginResPacket.Result = (UINT16)ERROR_CODE::NONE;
-		SendPacketFunc(clientIndex_, sizeof(LOGIN_RESPONSE_PACKET), (char*)&loginResPacket);
+		RedisLoginReq dbReq;
+		CopyMemory(dbReq.UserID, pLoginReqPacket->UserID, (MAX_USER_ID_LEN + 1));
+		CopyMemory(dbReq.UserPW, pLoginReqPacket->UserPW, (MAX_USER_PW_LEN + 1));
+
+		RedisTask task;
+		task.UserIndex = clientIndex_;
+		task.TaskID = RedisTaskID::REQUEST_LOGIN;
+		task.DataSize = sizeof(RedisLoginReq);
+		task.pData = new char[task.DataSize];
+		CopyMemory(task.pData, (char*)&dbReq, task.DataSize);
+		mRedisMgr->PushTask(task);
+
+		printf("Login To Redis user id = %s\n", pUserID);
 	}
 	else
 	{
@@ -186,6 +217,23 @@ void PacketManager::ProcessLogin(UINT32 clientIndex_, UINT16 packetSize_, char* 
 	}
 }
 
+void PacketManager::ProcessLoginDBResult(UINT32 clientIndex_, UINT16 packetSize_, char* pPacket_)
+{
+	printf("ProcessLoginDBResult. UserIndex: %d\n", clientIndex_);
+
+	auto pBody = (RedisLoginRes*)pPacket_;
+
+	if (pBody->Result == (UINT16)ERROR_CODE::NONE)
+	{
+		//로그인 완료로 변경한다
+	}
+
+	LOGIN_RESPONSE_PACKET loginResPacket;
+	loginResPacket.PacketId = (UINT16)PACKET_ID::LOGIN_RESPONSE;
+	loginResPacket.PacketLength = sizeof(LOGIN_RESPONSE_PACKET);
+	loginResPacket.Result = pBody->Result;
+	SendPacketFunc(clientIndex_, sizeof(LOGIN_RESPONSE_PACKET), (char*)&loginResPacket);
+}
 
 void PacketManager::ClearConnectionInfo(INT32 clientIndex_)
 {
