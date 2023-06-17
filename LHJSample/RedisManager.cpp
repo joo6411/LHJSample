@@ -10,7 +10,7 @@ bool RedisManager::Run(std::string ip_, UINT16 port_, const UINT32 threadCount_)
 {
 	if (Connect(ip_, port_) == false)
 	{
-		printf("Redis 접속 실패\n");
+		std::cout<<("Redis 접속 실패\n");
 		return false;
 	}
 
@@ -22,7 +22,7 @@ bool RedisManager::Run(std::string ip_, UINT16 port_, const UINT32 threadCount_)
 		mTaskThreads.emplace_back([this]() { TaskProcessThread(); });
 	}
 
-	printf("Redis 동작 중...\n");
+	std::cout<<("Redis 동작 중...\n");
 	return true;
 }
 
@@ -80,7 +80,7 @@ bool RedisManager::Connect(std::string ip_, UINT16 port_)
 
 void RedisManager::TaskProcessThread()
 {
-	printf("Redis 스레드 시작...\n");
+	std::cout<<("Redis 스레드 시작...\n");
 
 	while (mIsTaskRun)
 	{
@@ -129,7 +129,7 @@ void RedisManager::TaskProcessThread()
 		}
 	}
 
-	printf("Redis 스레드 종료\n");
+	std::cout<<("Redis 스레드 종료\n");
 }
 
 RedisTask RedisManager::TakeRequestTask()

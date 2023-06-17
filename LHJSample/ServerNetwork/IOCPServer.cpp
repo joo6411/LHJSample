@@ -1,4 +1,5 @@
 #include "IOCPServer.h"
+#include <iostream>
 
 IOCPServer::IOCPServer()
 {
@@ -17,7 +18,7 @@ bool IOCPServer::InitSocket()
     int nRet = WSAStartup(MAKEWORD(2, 2), &wsaData);
     if (0 != nRet)
     {
-        printf("[에러] WSAStartup()함수 실패 : %d\n", WSAGetLastError());
+        std::cout<<("[에러] WSAStartup()함수 실패 : %d\n", WSAGetLastError());
         return false;
     }
 
@@ -26,11 +27,11 @@ bool IOCPServer::InitSocket()
 
     if (INVALID_SOCKET == mListenSocket)
     {
-        printf("[에러] socket()함수 실패 : %d\n", WSAGetLastError());
+        std::cout<<("[에러] socket()함수 실패 : %d\n", WSAGetLastError());
         return false;
     }
 
-    printf("소켓 초기화 성공\n");
+    std::cout<<("소켓 초기화 성공\n");
     return true;
 }
 
@@ -48,7 +49,7 @@ bool IOCPServer::BindandListen(int nBindPort)
     int nRet = bind(mListenSocket, (SOCKADDR*)&stServerAddr, sizeof(SOCKADDR_IN));
     if (0 != nRet)
     {
-        printf("[에러] bind()함수 실패 : %d\n", WSAGetLastError());
+        std::cout<<("[에러] bind()함수 실패 : %d\n", WSAGetLastError());
         return false;
     }
 
@@ -57,11 +58,11 @@ bool IOCPServer::BindandListen(int nBindPort)
     nRet = listen(mListenSocket, 5);
     if (0 != nRet)
     {
-        printf("[에러] listen()함수 실패 : %d\n", WSAGetLastError());
+        std::cout<<("[에러] listen()함수 실패 : %d\n", WSAGetLastError());
         return false;
     }
 
-    printf("서버 등록 성공..\n");
+    std::cout<<("서버 등록 성공..\n");
     return true;
 }
 
@@ -73,7 +74,7 @@ bool IOCPServer::StartServer(const UINT32 maxClientCount)
     mIOCPHandle = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, NULL, MAX_WORKERTHREAD);
     if (NULL == mIOCPHandle)
     {
-        printf("[에러] CreateIOCPServer()함수 실패: %d\n", GetLastError());
+        std::cout<<("[에러] CreateIOCPServer()함수 실패: %d\n", GetLastError());
         return false;
     }
 
@@ -87,7 +88,7 @@ bool IOCPServer::StartServer(const UINT32 maxClientCount)
         return false;
     }
 
-    printf("서버 시작\n");
+    std::cout<<("서버 시작\n");
     return true;
 }
 
@@ -141,7 +142,7 @@ bool IOCPServer::CreateWokerThread()
         mIOWorkerThreads.emplace_back([this]() { WokerThread(); });
     }
 
-    printf("WokerThread 시작..\n");
+    std::cout<<("WokerThread 시작..\n");
     return true;
 }
 
@@ -149,7 +150,7 @@ bool IOCPServer::CreateAccepterThread()
 {
     mAccepterThread = std::thread([this]() { AccepterThread(); });
 
-    printf("AccepterThread 시작..\n");
+    std::cout<<("AccepterThread 시작..\n");
     return true;
 }
 
@@ -157,7 +158,7 @@ void IOCPServer::CreateSendThread()
 {
 	mIsSenderRun = true;
 	mSendThread = std::thread([this]() { SendThread(); });
-	printf("SendThread 시작..\n");
+	std::cout<<("SendThread 시작..\n");
 }
 
 //사용하지 않는 클라이언트 정보 구조체를 반환한다.
@@ -223,11 +224,9 @@ void IOCPServer::WokerThread()
 		//client가 접속을 끊었을때..			
 		if (FALSE == bSuccess || (0 == dwIoSize && TRUE == bSuccess))
 		{
-			//printf("socket(%d) 접속 끊김\n", (int)pClientInfo->m_socketClient);
 			CloseSocket(pClientInfo);
 			continue;
 		}
-
 
 		stOverlappedEx* pOverlappedEx = (stOverlappedEx*)lpOverlapped;
 
@@ -262,7 +261,7 @@ void IOCPServer::WokerThread()
 		//예외 상황
 		else
 		{
-			printf("Client Index(%d)에서 예외상황\n", pClientInfo->GetIndex());
+			std::cout<<("Client Index(%d)에서 예외상황\n", pClientInfo->GetIndex());
 		}
 	}
 }

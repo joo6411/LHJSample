@@ -104,12 +104,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\joo64\source\repos\LHJSample\thirdparty\hiredis;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\joo64\source\repos\LHJSample\thirdparty\hiredis;C:\Users\joo64\source\repos\LHJSample\thirdparty\tinyxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\joo64\source\repos\LHJSample\thirdparty\hiredis\VS-IDE\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\joo64\source\repos\LHJSample\thirdparty\tinyxml2;C:\Users\joo64\source\repos\LHJSample\thirdparty\hiredis\VS-IDE\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -130,27 +131,35 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Config\ConfigLoader.cpp" />
+    <ClCompile Include="DB\AccountDB.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Room\RoomManager.cpp" />
     <ClCompile Include="ServerNetwork\IOCPServer.cpp" />
     <ClCompile Include="ChatServer.cpp" />
     <ClCompile Include="ServerNetwork\ClientInfo.cpp" />
     <ClCompile Include="PacketManager.cpp" />
-    <ClCompile Include="UserManager.cpp" />
-    <ClCompile Include="User.cpp" />
+    <ClCompile Include="User\UserManager.cpp" />
+    <ClCompile Include="User\User.cpp" />
     <ClCompile Include="RedisManager.cpp" />
+    <ClCompile Include="Room\Room.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Config\ConfigLoader.h" />
+    <ClInclude Include="DB\AccountDB.h" />
+    <ClInclude Include="Room\RoomManager.h" />
     <ClInclude Include="ServerNetwork\IOCPServer.h" />
     <ClInclude Include="ChatServer.h" />
     <ClInclude Include="Packet.h" />
     <ClInclude Include="ServerNetwork\ClientInfo.h" />
     <ClInclude Include="ServerNetwork\Define.h" />
     <ClInclude Include="PacketManager.h" />
-    <ClInclude Include="UserManager.h" />
-    <ClInclude Include="User.h" />
+    <ClInclude Include="User\UserManager.h" />
+    <ClInclude Include="User\User.h" />
     <ClInclude Include="RedisManager.h" />
     <ClInclude Include="RedisTaskDefine.h" />
     <ClInclude Include="ErrorCode.h" />
+    <ClInclude Include="Room\Room.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

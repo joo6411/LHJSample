@@ -25,7 +25,7 @@ ERROR_CODE UserManager::AddUser(char* userID_, int clientIndex_)
 	auto user_idx = clientIndex_;
 
 	mUserObjPool[user_idx]->SetLogin(userID_);
-	mUserIDDictionary.insert(std::pair< char*, int>(userID_, clientIndex_));
+	mUserIDDictionary.insert(std::pair<char*, int>(userID_, clientIndex_));
 
 	return ERROR_CODE::NONE;
 }
