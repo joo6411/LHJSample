@@ -7,7 +7,6 @@ IOCPServer::IOCPServer()
 
 IOCPServer::~IOCPServer()
 {
-    //윈속의 사용을 끝낸다.
     WSACleanup();
 }
 
