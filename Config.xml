@@ -8,8 +8,10 @@
 		<IP>127.0.0.1</IP>
 		<Port>6379</Port>
 	</RedisServer>
-	<DB>
+	<AccountDB>
 		<IP>127.0.0.1</IP>
 		<Port>5001</Port>
-	</DB>
+		<ID>test</ID>
+		<Password>1234</Password>
+	</AccountDB>
 </Config>

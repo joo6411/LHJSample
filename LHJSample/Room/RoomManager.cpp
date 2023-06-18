@@ -25,7 +25,6 @@ UINT16 RoomManager::EnterUser(INT32 roomNumber_, User* user_)
 		return (UINT16)ERROR_CODE::ROOM_INVALID_INDEX;
 	}
 
-
 	return pRoom->EnterUser(user_);
 }
 

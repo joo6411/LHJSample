@@ -1,5 +1,6 @@
 ﻿#include "ChatServer.h"
 #include "Config/ConfigLoader.h"
+#include "DB/AccountDB.h"
 #include <string>
 #include <iostream>
 
@@ -7,16 +8,19 @@ const UINT16 MAX_CLIENT = 100;		//총 접속할수 있는 클라이언트 수
 
 int main()
 {
-	ChatServer server;
 	gConfig.LoadNetworkConfig("../Config.xml");
 
-	//소켓을 초기화
+	ChatServer server;
+	AccountDB DB;
+	
+	//DB 초기화
+	DB.Init();
+	
+	//소켓 초기화
 	server.InitSocket();
+	server.BindandListen(gConfig.GetChatServerInfo().Port);
 
-	//소켓과 서버 주소를 연결하고 등록 시킨다.
-	server.BindandListen(gConfig.mChatServerInfo.Port);
-
-	if (!server.Run(MAX_CLIENT))
+	if (!server.Run(MAX_CLIENT)) // 서버실행
 	{
 		std::cout << ("서버 실행 오류");
 		server.DestroyThread();

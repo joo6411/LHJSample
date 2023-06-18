@@ -51,6 +51,32 @@ void ConfigLoader::LoadNetworkConfig(const char* configPath)
             mRedisServerInfo.Port = (unsigned short)child->IntText();
         }
     }
+
+    Server = root->FirstChildElement("AccountDB");
+    if (!Server)
+    {
+        throw std::format("NotFound <AccountDB> config");
+    }
+
+    for (auto child = Server->FirstChildElement(); child != nullptr; child = child->NextSiblingElement())
+    {
+        if (IsElementName(child, "IP"))
+        {
+            mAccountDBInfo.IP = GetText(child, true);
+        }
+        else if (IsElementName(child, "Port"))
+        {
+            mAccountDBInfo.Port = (unsigned short)child->IntText();
+        }
+        else if (IsElementName(child, "ID"))
+        {
+            mAccountDBInfo.ID = GetText(child, true);
+        }
+        else if (IsElementName(child, "Password"))
+        {
+            mAccountDBInfo.Password = GetText(child, true);
+        }
+    }
 }
 
 bool ConfigLoader::IsElementName(tinyxml2::XMLElement* ele, const char* compareName)

@@ -9,7 +9,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LHJSampleClient", "LHJSampl
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Query", "Query", "{025FB72C-2A4F-46DB-8CDF-82C8070726DC}"
 	ProjectSection(SolutionItems) = preProject
-		SqlQuery_1.sql = SqlQuery_1.sql
+		02_Account_Table.sql = 02_Account_Table.sql
+		01_Account.sql = 01_Account.sql
+		03_Account_Procedure.sql = 03_Account_Procedure.sql
+		04_Account_Init.sql = 04_Account_Init.sql
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Config", "Config", "{2BCA7376-AAC3-42CB-8DE4-28A646EDDB69}"

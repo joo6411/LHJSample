@@ -45,7 +45,7 @@ void PacketManager::CreateComponent(const UINT32 maxClient_)
 
 bool PacketManager::Run()
 {
-	if (mRedisMgr->Run(gConfig.mRedisServerInfo.IP, gConfig.mRedisServerInfo.Port, 1) == false)
+	if (mRedisMgr->Run(gConfig.GetRedisServerInfo().IP, gConfig.GetRedisServerInfo().Port, 1) == false)
 	{
 		return false;
 	}

@@ -15,7 +15,6 @@ bool RedisManager::Run(std::string ip_, UINT16 port_, const UINT32 threadCount_)
 	}
 
 	mIsTaskRun = true;
-	
 
 	for (UINT32 i = 0; i < threadCount_; i++)
 	{
@@ -107,6 +106,12 @@ void RedisManager::TaskProcessThread()
 					{
 						bodyData.Result = (UINT16)ERROR_CODE::NONE;
 					}
+				}
+				else
+				{
+					std::cout << "User " << pRequest->UserID << " Created\n";
+					//mConn->hset(pRequest->UserID, , pRequest->UserPW,);
+					bodyData.Result = (UINT16)ERROR_CODE::NONE;
 				}
 
 				RedisTask resTask;
