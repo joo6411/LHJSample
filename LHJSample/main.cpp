@@ -11,10 +11,6 @@ int main()
 	gConfig.LoadNetworkConfig("../Config.xml");
 
 	ChatServer server;
-	AccountDB DB;
-	
-	//DB 초기화
-	DB.Init();
 	
 	//소켓 초기화
 	server.InitSocket();

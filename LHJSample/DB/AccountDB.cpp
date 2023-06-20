@@ -62,5 +62,27 @@ bool AccountDB::CreateAccount(const std::string& id, const std::string& pw)
 
 bool AccountDB::SelectAccount(const std::string& id, const std::string& pw)
 {
+	SQLCHAR* sqlID = (SQLCHAR*)(const_cast<char*>(id.c_str()));
+	SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_CHAR, 10, 0, sqlID, 0, 0);
+	SQLRETURN ret = SQLExecDirect(hstmt, (SQLWCHAR*)L"{call usp_Account_Select(?)}", SQL_NTS);
 
+	if (ret == SQL_SUCCESS || ret == SQL_SUCCESS_WITH_INFO)
+	{
+		SQLWCHAR password[10];
+		while (SQLFetch(hstmt) == SQL_SUCCESS)
+		{
+			SQLGetData(hstmt, 3, SQL_C_WCHAR, password, 20, NULL);
+			std::wstring ws(password);
+			std::string strPassword(ws.begin(), ws.end());
+			strPassword.replace(strPassword.find(" "), strPassword.length(), "");
+			if (!strPassword.compare(pw))
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	return false;
 }

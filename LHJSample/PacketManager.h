@@ -11,11 +11,12 @@
 class UserManager;
 class RoomManager;
 class RedisManager;
+class AccountDB;
 
 class PacketManager {
 public:
 	PacketManager() = default;
-	~PacketManager() = default;
+	~PacketManager();
 
 	void Init(const UINT32 maxClient_);
 	bool Run();
@@ -37,8 +38,9 @@ private:
 	void ProcessRecvPacket(const UINT32 clientIndex_, const UINT16 packetId_, const UINT16 packetSize_, char* pPacket_);
 	void ProcessUserConnect(UINT32 clientIndex_, UINT16 packetSize_, char* pPacket_);
 	void ProcessUserDisConnect(UINT32 clientIndex_, UINT16 packetSize_, char* pPacket_);
+
+	void ProcessCreateAccount(UINT32 clientIndex_, UINT16 packetSize_, char* pPacket_);
 	void ProcessLogin(UINT32 clientIndex_, UINT16 packetSize_, char* pPacket_);
-	void ProcessLoginDBResult(UINT32 clientIndex_, UINT16 packetSize_, char* pPacket_);
 	void ProcessEnterRoom(UINT32 clientIndex_, UINT16 packetSize_, char* pPacket_);
 	void ProcessLeaveRoom(UINT32 clientIndex_, UINT16 packetSize_, char* pPacket_);
 	void ProcessRoomChatMessage(UINT32 clientIndex_, UINT16 packetSize_, char* pPacket_);
@@ -50,6 +52,7 @@ private:
 	UserManager* mUserManager;
 	RoomManager* mRoomManager;
 	RedisManager* mRedisMgr;
+	AccountDB* mAccountDB;
 	std::function<void(int, char*)> mSendMQDataFunc;
 	bool mIsRunProcessThread = false;
 	std::thread mProcessThread;

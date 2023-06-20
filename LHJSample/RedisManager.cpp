@@ -90,6 +90,7 @@ void RedisManager::TaskProcessThread()
 		{
 			isIdle = false;
 
+			/*
 			if (task.TaskID == RedisTaskID::REQUEST_LOGIN)
 			{
 				auto pRequest = (RedisLoginReq*)task.pData;
@@ -123,7 +124,7 @@ void RedisManager::TaskProcessThread()
 
 				PushResponse(resTask);
 			}
-
+			*/
 			task.Release();
 		}
 

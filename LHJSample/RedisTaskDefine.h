@@ -10,8 +10,8 @@ enum class RedisTaskID : UINT16
 {
 	INVALID = 0,
 
-	REQUEST_LOGIN = 1001,
-	RESPONSE_LOGIN = 1002,
+	//REQUEST_LOGIN = 1001,
+	//RESPONSE_LOGIN = 1002,
 };
 
 struct RedisTask
