@@ -13,6 +13,16 @@ UINT16 Room::EnterUser(User* user_)
 		return (UINT16)ERROR_CODE::ENTER_ROOM_FULL_USER;
 	}
 
+	for (auto user : mUserList)
+	{
+		NOTIFY_ROOM_INFO_PACKET roomInfoNotPacket;
+		roomInfoNotPacket.PacketId = (UINT16)PACKET_ID::NOTIFY_ROOM_INFO;
+		roomInfoNotPacket.PacketLength = sizeof(NOTIFY_ROOM_INFO_PACKET);
+		roomInfoNotPacket.Result = (UINT16)ERROR_CODE::NONE;
+		roomInfoNotPacket.EnterUser = user_->GetUserId();
+		SendPacketFunc(user->GetNetConnIdx(), sizeof(NOTIFY_ROOM_INFO_PACKET), (char*)&roomInfoNotPacket);
+	}
+
 	mUserList.push_back(user_);
 	++mCurrentUserCount;
 
@@ -29,8 +39,8 @@ void Room::LeaveUser(User* leaveUser_)
 
 void Room::NotifyChat(INT32 clientIndex_, const char* userID_, const char* msg_)
 {
-	ROOM_CHAT_NOTIFY_PACKET roomChatNtfyPkt;
-	roomChatNtfyPkt.PacketId = (UINT16)PACKET_ID::ROOM_CHAT_NOTIFY;
+	NOTIFY_ROOM_CHAT_PACKET roomChatNtfyPkt;
+	roomChatNtfyPkt.PacketId = (UINT16)PACKET_ID::NOTIFY_ROOM_CHAT;
 	roomChatNtfyPkt.PacketLength = sizeof(roomChatNtfyPkt);
 
 	CopyMemory(roomChatNtfyPkt.Msg, msg_, sizeof(roomChatNtfyPkt.Msg));
@@ -52,4 +62,15 @@ void Room::SendToAllUser(const UINT16 dataSize_, char* data_, const INT32 passUs
 
 		SendPacketFunc((UINT32)pUser->GetNetConnIdx(), (UINT32)dataSize_, data_);
 	}
+}
+
+std::list<std::string> Room::GetRoomMemberList()
+{
+	std::list<std::string> roomUser;
+	for (auto user : mUserList)
+	{
+		roomUser.push_back(user->GetUserId());
+	}
+
+	return roomUser;
 }

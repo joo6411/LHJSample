@@ -24,6 +24,10 @@ UINT16 RoomManager::EnterUser(INT32 roomNumber_, User* user_)
 	{
 		return (UINT16)ERROR_CODE::ROOM_INVALID_INDEX;
 	}
+	if (pRoom->GetCurrentUserCount() >= pRoom->GetMaxUserCount())
+	{
+		return (UINT16)ERROR_CODE::ROOM_FULL;
+	}
 
 	return pRoom->EnterUser(user_);
 }

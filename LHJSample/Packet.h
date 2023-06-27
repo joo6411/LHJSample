@@ -2,6 +2,7 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#include <list>
 
 // 클라이언트가 보낸 패킷을 저장하는 구조체
 struct RawPacketData
@@ -68,6 +69,10 @@ enum class  PACKET_ID : UINT16
 	REQ_ROOM_CHAT = 240,
 	ACK_ROOM_CHAT = 241,
 	NOTIFY_ROOM_CHAT = 242,
+
+	REQ_ROOM_INFO = 250,
+	ACK_ROOM_INFO =251,
+	NOTIFY_ROOM_INFO = 252,
 };
 
 
@@ -124,6 +129,23 @@ struct ACK_ROOM_ENTER_PACKET : public PACKET_HEADER
 	//char RivalUserID[MAX_USER_ID_LEN + 1] = { 0, };
 };
 
+
+//- 룸 정보 요청
+struct REQ_ROOM_INFO_PACKET : public PACKET_HEADER
+{
+};
+
+struct ACK_ROOM_INFO_PACKET : public PACKET_HEADER
+{
+	INT16 Result;
+	std::list<std::string> Users;
+};
+
+struct NOTIFY_ROOM_INFO_PACKET : public PACKET_HEADER
+{
+	INT16 Result;
+	std::string EnterUser;
+};
 
 //- 룸 나가기 요청
 struct REQ_ROOM_LEAVE_PACKET : public PACKET_HEADER

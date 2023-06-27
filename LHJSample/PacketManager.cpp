@@ -48,6 +48,9 @@ void PacketManager::Init(const UINT32 maxClient_)
 	//mRecvFuntionDictionary[(int)RedisTaskID::RESPONSE_LOGIN] = &PacketManager::ProcessLoginDBResult;
 
 	mRecvFuntionDictionary[(int)PACKET_ID::REQ_ROOM_ENTER] = &PacketManager::ProcessEnterRoom;
+
+	mRecvFuntionDictionary[(int)PACKET_ID::REQ_ROOM_INFO] = &PacketManager::ProcessEnterRoom;
+
 	mRecvFuntionDictionary[(int)PACKET_ID::REQ_ROOM_LEAVE] = &PacketManager::ProcessLeaveRoom;
 	mRecvFuntionDictionary[(int)PACKET_ID::REQ_ROOM_CHAT] = &PacketManager::ProcessRoomChatMessage;
 
@@ -241,7 +244,6 @@ void PacketManager::ProcessLogin(UINT32 clientIndex_, UINT16 packetSize_, char* 
 	}
 
 	auto packet = reinterpret_cast<REQ_LOGIN_PACKET*>(pPacket_);
-
 	auto pUserID = packet->UserID;
 	std::cout<<("requested user id = %s\n", pUserID);
 
@@ -296,8 +298,6 @@ void PacketManager::ProcessLogin(UINT32 clientIndex_, UINT16 packetSize_, char* 
 
 void PacketManager::ProcessEnterRoom(UINT32 clientIndex_, UINT16 packetSize_, char* pPacket_)
 {
-	UNREFERENCED_PARAMETER(packetSize_);
-
 	auto pRoomEnterReqPacket = reinterpret_cast<REQ_ROOM_ENTER_PACKET*>(pPacket_);
 	auto pReqUser = mUserManager->GetUserByConnIdx(clientIndex_);
 
@@ -309,19 +309,31 @@ void PacketManager::ProcessEnterRoom(UINT32 clientIndex_, UINT16 packetSize_, ch
 	ACK_ROOM_ENTER_PACKET roomEnterResPacket;
 	roomEnterResPacket.PacketId = (UINT16)PACKET_ID::ACK_ROOM_ENTER;
 	roomEnterResPacket.PacketLength = sizeof(ACK_ROOM_ENTER_PACKET);
-
 	roomEnterResPacket.Result = mRoomManager->EnterUser(pRoomEnterReqPacket->RoomNumber, pReqUser);
 
 	SendPacketFunc(clientIndex_, sizeof(ACK_ROOM_ENTER_PACKET), (char*)&roomEnterResPacket);
-	std::cout<<("Response Packet Sended");
+	std::cout<<("ACK_ROOM_ENTER_PACKET Sended");
+}
+
+void PacketManager::ProcessRoomInfo(UINT32 clientIndex_, UINT16 packetSize_, char* pPacket_)
+{
+	auto packet = reinterpret_cast<REQ_ROOM_INFO_PACKET*>(pPacket_);
+	User* user = mUserManager->GetUserByConnIdx(clientIndex_);
+	Room* room = mRoomManager->GetRoomByNumber(user->GetCurrentRoom());
+	
+	ACK_ROOM_INFO_PACKET roomInfoAckPacket;
+	roomInfoAckPacket.PacketId = (UINT16)PACKET_ID::ACK_ROOM_INFO;
+	roomInfoAckPacket.PacketLength = sizeof(ACK_ROOM_INFO_PACKET);
+	roomInfoAckPacket.Result = (UINT16)ERROR_CODE::NONE;
+	roomInfoAckPacket.Users = room->GetRoomMemberList();
+
+	SendPacketFunc(clientIndex_, sizeof(ACK_ROOM_INFO_PACKET), (char*)&roomInfoAckPacket);
+	std::cout << ("ACK_ROOM_INFO_PACKET Sended");
 }
 
 
 void PacketManager::ProcessLeaveRoom(UINT32 clientIndex_, UINT16 packetSize_, char* pPacket_)
 {
-	UNREFERENCED_PARAMETER(packetSize_);
-	UNREFERENCED_PARAMETER(pPacket_);
-
 	ACK_ROOM_LEAVE_PACKET roomLeaveResPacket;
 	roomLeaveResPacket.PacketId = (UINT16)PACKET_ID::ACK_ROOM_LEAVE;
 	roomLeaveResPacket.PacketLength = sizeof(ACK_ROOM_LEAVE_PACKET);
@@ -337,8 +349,6 @@ void PacketManager::ProcessLeaveRoom(UINT32 clientIndex_, UINT16 packetSize_, ch
 
 void PacketManager::ProcessRoomChatMessage(UINT32 clientIndex_, UINT16 packetSize_, char* pPacket_)
 {
-	UNREFERENCED_PARAMETER(packetSize_);
-
 	auto pRoomChatReqPacketet = reinterpret_cast<REQ_ROOM_CHAT_PACKET*>(pPacket_);
 
 	ACK_ROOM_CHAT_PACKET roomChatResPacket;
@@ -361,6 +371,7 @@ void PacketManager::ProcessRoomChatMessage(UINT32 clientIndex_, UINT16 packetSiz
 
 	pRoom->NotifyChat(clientIndex_, reqUser->GetUserId().c_str(), pRoomChatReqPacketet->Message);
 }
+
 void PacketManager::ClearConnectionInfo(INT32 clientIndex_)
 {
 	auto pReqUser = mUserManager->GetUserByConnIdx(clientIndex_);
