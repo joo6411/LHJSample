@@ -65,6 +65,7 @@ enum class  PACKET_ID : UINT16
 
 	REQ_ROOM_LEAVE = 230,
 	ACK_ROOM_LEAVE = 231,
+	NOTIFY_ROOM_LEAVE =232,
 
 	REQ_ROOM_CHAT = 240,
 	ACK_ROOM_CHAT = 241,
@@ -155,6 +156,12 @@ struct REQ_ROOM_LEAVE_PACKET : public PACKET_HEADER
 struct ACK_ROOM_LEAVE_PACKET : public PACKET_HEADER
 {
 	INT16 Result;
+};
+
+struct NOTIFY_ROOM_LEAVE_PACKET : public PACKET_HEADER
+{
+	INT16 Result;
+	std::string LeaveUser;
 };
 
 

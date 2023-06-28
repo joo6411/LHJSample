@@ -13,15 +13,12 @@ UINT16 Room::EnterUser(User* user_)
 		return (UINT16)ERROR_CODE::ENTER_ROOM_FULL_USER;
 	}
 
-	for (auto user : mUserList)
-	{
-		NOTIFY_ROOM_INFO_PACKET roomInfoNotPacket;
-		roomInfoNotPacket.PacketId = (UINT16)PACKET_ID::NOTIFY_ROOM_INFO;
-		roomInfoNotPacket.PacketLength = sizeof(NOTIFY_ROOM_INFO_PACKET);
-		roomInfoNotPacket.Result = (UINT16)ERROR_CODE::NONE;
-		roomInfoNotPacket.EnterUser = user_->GetUserId();
-		SendPacketFunc(user->GetNetConnIdx(), sizeof(NOTIFY_ROOM_INFO_PACKET), (char*)&roomInfoNotPacket);
-	}
+	NOTIFY_ROOM_INFO_PACKET roomInfoNtfyPacket;
+	roomInfoNtfyPacket.PacketId = (UINT16)PACKET_ID::NOTIFY_ROOM_INFO;
+	roomInfoNtfyPacket.PacketLength = sizeof(NOTIFY_ROOM_INFO_PACKET);
+	roomInfoNtfyPacket.Result = (UINT16)ERROR_CODE::NONE;
+	roomInfoNtfyPacket.EnterUser = user_->GetUserId();
+	SendToAllUser(sizeof(roomInfoNtfyPacket), (char*)&roomInfoNtfyPacket, user_->GetNetConnIdx(), false);
 
 	mUserList.push_back(user_);
 	++mCurrentUserCount;
@@ -32,6 +29,13 @@ UINT16 Room::EnterUser(User* user_)
 
 void Room::LeaveUser(User* leaveUser_)
 {
+	NOTIFY_ROOM_LEAVE_PACKET roomLeaveNtfyPkt;
+	roomLeaveNtfyPkt.PacketId = (UINT16)PACKET_ID::NOTIFY_ROOM_LEAVE;
+	roomLeaveNtfyPkt.PacketLength = sizeof(roomLeaveNtfyPkt);
+	roomLeaveNtfyPkt.LeaveUser = leaveUser_->GetUserId();
+	roomLeaveNtfyPkt.Result = (INT16)ERROR_CODE::NONE;
+	SendToAllUser(sizeof(roomLeaveNtfyPkt), (char*)&roomLeaveNtfyPkt, leaveUser_->GetNetConnIdx(), false);
+
 	mUserList.remove_if([leaveUserId = leaveUser_->GetUserId()](User* pUser) {
 		return leaveUserId == pUser->GetUserId();
 		});
