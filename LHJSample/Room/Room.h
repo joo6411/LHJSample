@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../User/UserManager.h"
-#include "../Packet.h"
+#include "Packet.h"
 
 #include <functional>
 

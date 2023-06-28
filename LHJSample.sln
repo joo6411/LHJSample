@@ -9,8 +9,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LHJSampleClient", "LHJSampl
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Query", "Query", "{025FB72C-2A4F-46DB-8CDF-82C8070726DC}"
 	ProjectSection(SolutionItems) = preProject
-		02_Account_Table.sql = 02_Account_Table.sql
 		01_Account.sql = 01_Account.sql
+		02_Account_Table.sql = 02_Account_Table.sql
 		03_Account_Procedure.sql = 03_Account_Procedure.sql
 		04_Account_Init.sql = 04_Account_Init.sql
 	EndProjectSection
@@ -19,6 +19,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Config", "Config", "{2BCA73
 	ProjectSection(SolutionItems) = preProject
 		Config.xml = Config.xml
 	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Packet", "Packet\Packet.vcxitems", "{833898FF-14A2-40B6-A80F-FC893A37A940}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -60,5 +62,9 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {54DEEFE6-F875-4D9B-8A87-9455ACDA5446}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		Packet\Packet.vcxitems*{833898ff-14a2-40b6-a80f-fc893a37a940}*SharedItemsImports = 9
+		Packet\Packet.vcxitems*{d6ef5545-e99b-4478-9c11-673d3b3f9437}*SharedItemsImports = 4
 	EndGlobalSection
 EndGlobal
