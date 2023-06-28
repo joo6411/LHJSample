@@ -139,13 +139,13 @@ struct REQ_ROOM_INFO_PACKET : public PACKET_HEADER
 struct ACK_ROOM_INFO_PACKET : public PACKET_HEADER
 {
 	INT16 Result;
-	std::list<std::string> Users;
+	std::list<const char*> Users;
 };
 
 struct NOTIFY_ROOM_INFO_PACKET : public PACKET_HEADER
 {
 	INT16 Result;
-	std::string EnterUser;
+	const char* EnterUser;
 };
 
 //- 룸 나가기 요청
@@ -161,7 +161,7 @@ struct ACK_ROOM_LEAVE_PACKET : public PACKET_HEADER
 struct NOTIFY_ROOM_LEAVE_PACKET : public PACKET_HEADER
 {
 	INT16 Result;
-	std::string LeaveUser;
+	const char* LeaveUser;
 };
 
 
