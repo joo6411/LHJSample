@@ -1,5 +1,7 @@
 # LHJSample
 
+git 주소 : https://github.com/joo6411/LHJSample.git
+
 1. 이헌주 포트폴리오용 채팅서버 설명
 
 c++20 이상에서 작동하고 DB로 Redis와 MS-SQL Server를 사용합니다
