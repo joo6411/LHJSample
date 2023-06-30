@@ -178,7 +178,6 @@ void PacketManager::PushSystemPacket(PacketInfo packet_)
 
 PacketInfo PacketManager::DequeSystemPacketData()
 {
-
 	std::lock_guard<std::mutex> guard(mLock);
 	if (mSystemPacketQueue.empty())
 	{
@@ -199,7 +198,6 @@ void PacketManager::ProcessRecvPacket(const UINT32 clientIndex_, const UINT16 pa
 		(this->*(iter->second))(clientIndex_, packetSize_, pPacket_);
 	}
 }
-
 
 void PacketManager::ProcessUserConnect(UINT32 clientIndex_, UINT16 packetSize_, char* pPacket_)
 {
@@ -228,10 +226,10 @@ void PacketManager::ProcessCreateAccount(UINT32 clientIndex_, UINT16 packetSize_
 		err = ERROR_CODE::CREATE_ACCOUNT_FAIL;
 	}
 
-	ACK_LOGIN_PACKET createAccountPacket;
+	ACK_CREATE_ACCOUNT_PACKET createAccountPacket;
 	createAccountPacket.PacketId = (UINT16)PACKET_ID::ACK_CREATE_ACCOUNT;
 	createAccountPacket.Result = (UINT16)err;
-	createAccountPacket.PacketLength = sizeof(ACK_LOGIN_PACKET);
+	createAccountPacket.PacketLength = sizeof(ACK_CREATE_ACCOUNT_PACKET);
 	
 	SendPacketFunc(clientIndex_, sizeof(ACK_CREATE_ACCOUNT_PACKET), (char*)&createAccountPacket);
 }
@@ -298,20 +296,20 @@ void PacketManager::ProcessLogin(UINT32 clientIndex_, UINT16 packetSize_, char* 
 
 void PacketManager::ProcessEnterRoom(UINT32 clientIndex_, UINT16 packetSize_, char* pPacket_)
 {
-	auto pRoomEnterReqPacket = reinterpret_cast<REQ_ROOM_ENTER_PACKET*>(pPacket_);
-	auto pReqUser = mUserManager->GetUserByConnIdx(clientIndex_);
+	auto roomEnterReqPacket = reinterpret_cast<REQ_ROOM_ENTER_PACKET*>(pPacket_);
+	auto reqUser = mUserManager->GetUserByConnIdx(clientIndex_);
 
-	if (!pReqUser || pReqUser == nullptr)
+	if (!reqUser || reqUser == nullptr)
 	{
 		return;
 	}
 
-	ACK_ROOM_ENTER_PACKET roomEnterResPacket;
-	roomEnterResPacket.PacketId = (UINT16)PACKET_ID::ACK_ROOM_ENTER;
-	roomEnterResPacket.PacketLength = sizeof(ACK_ROOM_ENTER_PACKET);
-	roomEnterResPacket.Result = mRoomManager->EnterUser(pRoomEnterReqPacket->RoomNumber, pReqUser);
+	ACK_ROOM_ENTER_PACKET roomEnterAckPacket;
+	roomEnterAckPacket.PacketId = (UINT16)PACKET_ID::ACK_ROOM_ENTER;
+	roomEnterAckPacket.PacketLength = sizeof(ACK_ROOM_ENTER_PACKET);
+	roomEnterAckPacket.Result = mRoomManager->EnterUser(roomEnterReqPacket->RoomNumber, reqUser);
 
-	SendPacketFunc(clientIndex_, sizeof(ACK_ROOM_ENTER_PACKET), (char*)&roomEnterResPacket);
+	SendPacketFunc(clientIndex_, sizeof(ACK_ROOM_ENTER_PACKET), (char*)&roomEnterAckPacket);
 	std::cout<<("ACK_ROOM_ENTER_PACKET Sended");
 }
 
@@ -349,27 +347,27 @@ void PacketManager::ProcessLeaveRoom(UINT32 clientIndex_, UINT16 packetSize_, ch
 
 void PacketManager::ProcessRoomChatMessage(UINT32 clientIndex_, UINT16 packetSize_, char* pPacket_)
 {
-	auto pRoomChatReqPacketet = reinterpret_cast<REQ_ROOM_CHAT_PACKET*>(pPacket_);
+	auto roomChatReqPacketet = reinterpret_cast<REQ_ROOM_CHAT_PACKET*>(pPacket_);
 
-	ACK_ROOM_CHAT_PACKET roomChatResPacket;
-	roomChatResPacket.PacketId = (UINT16)PACKET_ID::ACK_ROOM_CHAT;
-	roomChatResPacket.PacketLength = sizeof(ACK_ROOM_CHAT_PACKET);
-	roomChatResPacket.Result = (INT16)ERROR_CODE::NONE;
+	ACK_ROOM_CHAT_PACKET roomChatAckPacket;
+	roomChatAckPacket.PacketId = (UINT16)PACKET_ID::ACK_ROOM_CHAT;
+	roomChatAckPacket.PacketLength = sizeof(ACK_ROOM_CHAT_PACKET);
+	roomChatAckPacket.Result = (INT16)ERROR_CODE::NONE;
 
 	auto reqUser = mUserManager->GetUserByConnIdx(clientIndex_);
 	auto roomNum = reqUser->GetCurrentRoom();
 
-	auto pRoom = mRoomManager->GetRoomByNumber(roomNum);
-	if (pRoom == nullptr)
+	auto room = mRoomManager->GetRoomByNumber(roomNum);
+	if (room == nullptr)
 	{
-		roomChatResPacket.Result = (INT16)ERROR_CODE::CHAT_ROOM_INVALID_ROOM_NUMBER;
-		SendPacketFunc(clientIndex_, sizeof(ACK_ROOM_CHAT_PACKET), (char*)&roomChatResPacket);
+		roomChatAckPacket.Result = (INT16)ERROR_CODE::CHAT_ROOM_INVALID_ROOM_NUMBER;
+		SendPacketFunc(clientIndex_, sizeof(ACK_ROOM_CHAT_PACKET), (char*)&roomChatAckPacket);
 		return;
 	}
 
-	SendPacketFunc(clientIndex_, sizeof(ACK_ROOM_CHAT_PACKET), (char*)&roomChatResPacket);
+	SendPacketFunc(clientIndex_, sizeof(ACK_ROOM_CHAT_PACKET), (char*)&roomChatAckPacket);
 
-	pRoom->NotifyChat(clientIndex_, reqUser->GetUserId().c_str(), pRoomChatReqPacketet->Message);
+	room->NotifyChat(clientIndex_, reqUser->GetUserId().c_str(), roomChatReqPacketet->Message);
 }
 
 void PacketManager::ClearConnectionInfo(INT32 clientIndex_)

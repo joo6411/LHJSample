@@ -21,5 +21,5 @@ public:
 	void End();
 
 private:
-	std::unique_ptr<PacketManager> m_pPacketManager;
+	std::unique_ptr<PacketManager> mPacketManager;
 };
