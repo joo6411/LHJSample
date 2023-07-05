@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace LHJSampleClientCS
 {
-    public class Network
+    public class ClientNetwork
     {
         public Socket Sock = null;
         public string LatestErrorMsg;
