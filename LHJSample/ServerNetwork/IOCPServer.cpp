@@ -134,7 +134,7 @@ void IOCPServer::CreateClient(const UINT32 maxClientCount)
 	for (UINT32 i = 0; i < maxClientCount; ++i)
 	{
 		auto client = new ClientInfo();
-		client->Init(i);
+		client->Init(i, mIOCPHandle);
 		mClientInfos.push_back(client);
 	}
 }

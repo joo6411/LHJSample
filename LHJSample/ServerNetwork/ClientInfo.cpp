@@ -8,6 +8,12 @@ ClientInfo::ClientInfo()
 	mSock = INVALID_SOCKET;
 }
 
+void ClientInfo::Init(const UINT32 index, HANDLE iocpHandle_)
+{
+	 mIndex = index; 
+	 mIOCPHandle = iocpHandle_;
+}
+
 bool ClientInfo::OnConnect(HANDLE iocpHandle_, SOCKET socket_)
 {
 	mSock = socket_;
@@ -25,8 +31,6 @@ bool ClientInfo::OnConnect(HANDLE iocpHandle_, SOCKET socket_)
 
 bool ClientInfo::PostAccept(SOCKET listenSock_, const UINT64 curTimeSec_)
 {
-	//std::cout<<("PostAccept. client Index:\n");
-
 	mLatestClosedTimeSec = UINT32_MAX;
 
 	mSock = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_IP, NULL, 0, WSA_FLAG_OVERLAPPED);
@@ -54,7 +58,6 @@ bool ClientInfo::PostAccept(SOCKET listenSock_, const UINT64 curTimeSec_)
 			return false;
 		}
 	}
-	//GetAcceptExSockaddrs();
 
 	return true;
 }

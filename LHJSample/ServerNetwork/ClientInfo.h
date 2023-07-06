@@ -10,7 +10,7 @@ class ClientInfo
 public:
 	ClientInfo();
 	~ClientInfo() {}
-	void Init(const UINT32 index) { mIndex = index; }
+	void Init(const UINT32 index, HANDLE iocpHandle_);
 	UINT32 GetIndex() { return mIndex; }
 	bool IsConnected() { return mSock != INVALID_SOCKET; }
 	SOCKET GetSock() { return mSock; }

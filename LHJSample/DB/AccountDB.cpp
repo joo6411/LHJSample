@@ -74,7 +74,7 @@ bool AccountDB::SelectAccount(const std::string& id, const std::string& pw)
 			SQLGetData(hstmt, 3, SQL_C_WCHAR, password, 20, NULL);
 			std::wstring ws(password);
 			std::string strPassword(ws.begin(), ws.end());
-			strPassword.replace(strPassword.find(" "), strPassword.length(), "");
+			//strPassword.replace(strPassword.find(" "), strPassword.length(), "");
 			if (!strPassword.compare(pw))
 			{
 				return true;

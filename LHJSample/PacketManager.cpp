@@ -43,13 +43,13 @@ void PacketManager::Init(const UINT32 maxClient_)
 	mRecvFuntionDictionary[(int)PACKET_ID::SYS_USER_CONNECT] = &PacketManager::ProcessUserConnect;
 	mRecvFuntionDictionary[(int)PACKET_ID::SYS_USER_DISCONNECT] = &PacketManager::ProcessUserDisConnect;
 	
-	mRecvFuntionDictionary[(int)PACKET_ID::REQ_CREATE_ACCOUNT] = &PacketManager::ProcessLogin;
+	mRecvFuntionDictionary[(int)PACKET_ID::REQ_CREATE_ACCOUNT] = &PacketManager::ProcessCreateAccount;
 	mRecvFuntionDictionary[(int)PACKET_ID::REQ_LOGIN] = &PacketManager::ProcessLogin;
 	//mRecvFuntionDictionary[(int)RedisTaskID::RESPONSE_LOGIN] = &PacketManager::ProcessLoginDBResult;
 
 	mRecvFuntionDictionary[(int)PACKET_ID::REQ_ROOM_ENTER] = &PacketManager::ProcessEnterRoom;
 
-	mRecvFuntionDictionary[(int)PACKET_ID::REQ_ROOM_INFO] = &PacketManager::ProcessEnterRoom;
+	mRecvFuntionDictionary[(int)PACKET_ID::REQ_ROOM_INFO] = &PacketManager::ProcessRoomInfo;
 
 	mRecvFuntionDictionary[(int)PACKET_ID::REQ_ROOM_LEAVE] = &PacketManager::ProcessLeaveRoom;
 	mRecvFuntionDictionary[(int)PACKET_ID::REQ_ROOM_CHAT] = &PacketManager::ProcessRoomChatMessage;
@@ -243,7 +243,7 @@ void PacketManager::ProcessLogin(UINT32 clientIndex_, UINT16 packetSize_, char* 
 
 	auto packet = reinterpret_cast<REQ_LOGIN_PACKET*>(pPacket_);
 	auto pUserID = packet->UserID;
-	std::cout<<("requested user id = %s\n", pUserID);
+	std::cout << "requested user id = " << pUserID << std::endl;
 
 	ACK_LOGIN_PACKET ackLoginPacket;
 	ackLoginPacket.PacketId = (UINT16)PACKET_ID::ACK_LOGIN;

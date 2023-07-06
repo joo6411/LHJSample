@@ -9,8 +9,8 @@ namespace LHJSampleClientCS
     class PacketDef
     {
         public const Int16 PACKET_HEADER_SIZE = 5;
-        public const int MAX_USER_ID_BYTE_LENGTH = 33;
-        public const int MAX_USER_PW_BYTE_LENGTH = 33;
+        public const int MAX_USER_ID_BYTE_LENGTH = 11;
+        public const int MAX_USER_PW_BYTE_LENGTH = 11;
         public const int MAX_CHAT_MSG_SIZE = 257;
     }
 

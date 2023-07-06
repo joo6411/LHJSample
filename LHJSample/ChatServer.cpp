@@ -22,7 +22,7 @@ void ChatServer::OnClose(const UINT32 clientIndex_)
 
 void ChatServer::OnReceive(const UINT32 clientIndex_, const UINT32 size_, char* pData_)
 {
-	std::cout << "[OnReceive] 클라이언트: Index(" << clientIndex_ << ", dataSize(" << size_ << std::endl;
+	std::cout << "[OnReceive] 클라이언트: Index(" << clientIndex_ << "), dataSize(" << size_ <<  ")" << std::endl;
 
 	mPacketManager->ReceivePacketData(clientIndex_, size_, pData_);
 }
