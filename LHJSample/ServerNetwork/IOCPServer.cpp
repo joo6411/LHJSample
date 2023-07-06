@@ -17,7 +17,7 @@ bool IOCPServer::InitSocket()
     int nRet = WSAStartup(MAKEWORD(2, 2), &wsaData);
     if (0 != nRet)
     {
-        std::cout<<("[에러] WSAStartup()함수 실패 : %d\n", WSAGetLastError());
+		std::cout << "[에러] WSAStartup()함수 실패 : " << WSAGetLastError() << std::endl;
         return false;
     }
 
@@ -26,7 +26,7 @@ bool IOCPServer::InitSocket()
 
     if (INVALID_SOCKET == mListenSocket)
     {
-        std::cout<<("[에러] socket()함수 실패 : %d\n", WSAGetLastError());
+		std::cout << "[에러] socket()함수 실패 : " << WSAGetLastError() << std::endl;
         return false;
     }
 
@@ -48,7 +48,7 @@ bool IOCPServer::BindandListen(int nBindPort)
     int nRet = bind(mListenSocket, (SOCKADDR*)&stServerAddr, sizeof(SOCKADDR_IN));
     if (0 != nRet)
     {
-        std::cout<<("[에러] bind()함수 실패 : %d\n", WSAGetLastError());
+		std::cout << "[에러] bind()함수 실패 : " << WSAGetLastError() << std::endl;
         return false;
     }
 
@@ -57,9 +57,24 @@ bool IOCPServer::BindandListen(int nBindPort)
     nRet = listen(mListenSocket, 5);
     if (0 != nRet)
     {
-        std::cout<<("[에러] listen()함수 실패 : %d\n", WSAGetLastError());
+		std::cout << "[에러] listen()함수 실패 : " << WSAGetLastError() << std::endl;
         return false;
     }
+
+	//CompletionPort객체 생성 요청을 한다.
+	mIOCPHandle = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, NULL, MAX_WORKERTHREAD);
+	if (NULL == mIOCPHandle)
+	{
+		std::cout << "[에러] CreateIoCompletionPort()함수 실패: " << GetLastError() << std::endl;
+		return false;
+	}
+
+	auto hIOCPHandle = CreateIoCompletionPort((HANDLE)mListenSocket, mIOCPHandle, (UINT32)0, 0);
+	if (nullptr == hIOCPHandle)
+	{
+		std::cout << "[에러] listen socket IOCP bind 실패 : " << WSAGetLastError() << std::endl;
+		return false;
+	}
 
     std::cout<<("서버 등록 성공..\n");
     return true;
@@ -69,13 +84,6 @@ bool IOCPServer::BindandListen(int nBindPort)
 bool IOCPServer::StartServer(const UINT32 maxClientCount)
 {
     CreateClient(maxClientCount);
-
-    mIOCPHandle = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, NULL, MAX_WORKERTHREAD);
-    if (NULL == mIOCPHandle)
-    {
-        std::cout<<("[에러] CreateIOCPServer()함수 실패: %d\n", GetLastError());
-        return false;
-    }
 
     bool bRet = CreateWokerThread();
     if (false == bRet) {
@@ -141,7 +149,7 @@ bool IOCPServer::CreateWokerThread()
         mIOWorkerThreads.emplace_back([this]() { WokerThread(); });
     }
 
-    std::cout<<("WokerThread 시작..\n");
+	std::cout << ("WokerThread 시작..") << std::endl;
     return true;
 }
 
@@ -149,7 +157,7 @@ bool IOCPServer::CreateAccepterThread()
 {
     mAccepterThread = std::thread([this]() { AccepterThread(); });
 
-    std::cout<<("AccepterThread 시작..\n");
+	std::cout << ("AccepterThread 시작..") << std::endl;
     return true;
 }
 
@@ -157,7 +165,7 @@ void IOCPServer::CreateSendThread()
 {
 	mIsSenderRun = true;
 	mSendThread = std::thread([this]() { SendThread(); });
-	std::cout<<("SendThread 시작..\n");
+	std::cout << ("SendThread 시작..") << std::endl;
 }
 
 //사용하지 않는 클라이언트 정보 구조체를 반환한다.
@@ -165,7 +173,7 @@ ClientInfo* IOCPServer::GetEmptyClientInfo()
 {
 	for (auto& client : mClientInfos)
 	{
-		if (!client->IsConnectd())
+		if (!client->IsConnected())
 		{
 			return client;
 		}
@@ -220,14 +228,14 @@ void IOCPServer::WokerThread()
 			continue;
 		}
 
+		stOverlappedEx* pOverlappedEx = (stOverlappedEx*)lpOverlapped;
+
 		//client가 접속을 끊었을때..			
-		if (FALSE == bSuccess || (0 == dwIoSize && TRUE == bSuccess))
+		if (FALSE == bSuccess || (0 == dwIoSize && IOOperation::ACCEPT != pOverlappedEx->m_eOperation))
 		{
 			CloseSocket(pClientInfo);
 			continue;
 		}
-
-		stOverlappedEx* pOverlappedEx = (stOverlappedEx*)lpOverlapped;
 
 		if (IOOperation::ACCEPT == pOverlappedEx->m_eOperation)
 		{
@@ -245,7 +253,7 @@ void IOCPServer::WokerThread()
 			}
 		}
 		//Overlapped I/O Recv작업 결과 뒤 처리
-		if (IOOperation::RECV == pOverlappedEx->m_eOperation)
+		else if (IOOperation::RECV == pOverlappedEx->m_eOperation)
 		{
 			OnReceive(pClientInfo->GetIndex(), dwIoSize, pClientInfo->RecvBuffer());
 			pClientInfo->BindRecv();
@@ -253,14 +261,12 @@ void IOCPServer::WokerThread()
 		//Overlapped I/O Send작업 결과 뒤 처리
 		else if (IOOperation::SEND == pOverlappedEx->m_eOperation)
 		{
-			delete[] pOverlappedEx->m_wsaBuf.buf;
-			delete pOverlappedEx;
 			pClientInfo->SendCompleted(dwIoSize);
 		}
 		//예외 상황
 		else
 		{
-			std::cout<<("Client Index(%d)에서 예외상황\n", pClientInfo->GetIndex());
+			std::cout << "Client Index(" << pClientInfo->GetIndex() << ")에서 예외상황" << std::endl;
 		}
 	}
 }
@@ -274,7 +280,7 @@ void IOCPServer::AccepterThread()
 
 		for (auto client : mClientInfos)
 		{
-			if (client->IsConnectd())
+			if (client->IsConnected())
 			{
 				continue;
 			}
@@ -313,7 +319,7 @@ void IOCPServer::SendThread()
 	{
 		for (auto client : mClientInfos)
 		{
-			if (client->IsConnectd() == false)
+			if (client->IsConnected() == false)
 			{
 				continue;
 			}

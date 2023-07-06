@@ -25,15 +25,14 @@ bool ClientInfo::OnConnect(HANDLE iocpHandle_, SOCKET socket_)
 
 bool ClientInfo::PostAccept(SOCKET listenSock_, const UINT64 curTimeSec_)
 {
-	//std::cout<<_s("PostAccept. client Index: %d\n", GetIndex());
+	//std::cout<<("PostAccept. client Index:\n");
 
 	mLatestClosedTimeSec = UINT32_MAX;
 
-	mSock = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_IP,
-		NULL, 0, WSA_FLAG_OVERLAPPED);
+	mSock = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_IP, NULL, 0, WSA_FLAG_OVERLAPPED);
 	if (INVALID_SOCKET == mSock)
 	{
-		std::cout<<("client Socket WSASocket Error : %d\n", GetLastError());
+		std::cout << "client Socket WSASocket Error : " << GetLastError() << std::endl;
 		return false;
 	}
 
@@ -51,18 +50,18 @@ bool ClientInfo::PostAccept(SOCKET listenSock_, const UINT64 curTimeSec_)
 	{
 		if (WSAGetLastError() != WSA_IO_PENDING)
 		{
-			std::cout<<("AcceptEx Error : %d\n", GetLastError());
+			std::cout << "AcceptEx Error : " << GetLastError() << std::endl;
 			return false;
 		}
 	}
+	//GetAcceptExSockaddrs();
 
 	return true;
 }
 
 bool ClientInfo::AcceptCompletion()
 {
-	std::cout<<("AcceptCompletion : SessionIndex(%d)\n", mIndex);
-
+	std::cout << "AcceptCompletion : SessionIndex(" << mIndex << ")" << std::endl;
 	if (OnConnect(mIOCPHandle, mSock) == false)
 	{
 		return false;
@@ -72,7 +71,7 @@ bool ClientInfo::AcceptCompletion()
 	int nAddrLen = sizeof(SOCKADDR_IN);
 	char clientIP[32] = { 0, };
 	inet_ntop(AF_INET, &(stClientAddr.sin_addr), clientIP, 32 - 1);
-	std::cout<<("클라이언트 접속 : IP(%s) SOCKET(%d)\n", clientIP, (int)mSock);
+	std::cout << "클라이언트 접속 : IP(" << clientIP << ") SOCKET(" << (int)mSock << ")" << std::endl;
 
 	return true;
 }
@@ -102,7 +101,7 @@ bool ClientInfo::BindIOCompletionPort(HANDLE iocpHandle_)
 
 	if (hIOCP == INVALID_HANDLE_VALUE)
 	{
-		std::cout<<("[에러] CreateIoCompletionPort()함수 실패: %d\n", GetLastError());
+		std::cout << "[에러] CreateIoCompletionPort()함수 실패: " << GetLastError() << std::endl;
 		return false;
 	}
 
@@ -129,7 +128,7 @@ bool ClientInfo::BindRecv()
 	//socket_error이면 client socket이 끊어진걸로 처리한다.
 	if (nRet == SOCKET_ERROR && (WSAGetLastError() != ERROR_IO_PENDING))
 	{
-		std::cout<<("[에러] WSARecv()함수 실패 : %d\n", WSAGetLastError());
+		std::cout << "[에러] WSARecv()함수 실패 : " << WSAGetLastError() << std::endl;
 		return false;
 	}
 
@@ -174,7 +173,7 @@ bool ClientInfo::SendIO()
 	//socket_error이면 client socket이 끊어진걸로 처리한다.
 	if (nRet == SOCKET_ERROR && (WSAGetLastError() != ERROR_IO_PENDING))
 	{
-		std::cout<<("[에러] WSASend()함수 실패 : %d\n", WSAGetLastError());
+		std::cout << "[에러] WSASend()함수 실패 : " << WSAGetLastError() << std::endl;
 		return false;
 	}
 
@@ -183,7 +182,7 @@ bool ClientInfo::SendIO()
 
 void ClientInfo::SendCompleted(const UINT32 dataSize_)
 {
-	std::cout<<("[송신 완료] bytes : %d\n", dataSize_);
+	std::cout << "[송신 완료] bytes : " << dataSize_ << std::endl;
 
 	std::lock_guard<std::mutex> guard(mSendLock);
 

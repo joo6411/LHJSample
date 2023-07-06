@@ -6,7 +6,7 @@
 
 void ChatServer::OnConnect(const UINT32 clientIndex_)
 {
-	std::cout<<("[OnConnect] 클라이언트: Index(%d)\n", clientIndex_);
+	std::cout<< "[OnConnect] 클라이언트: Index(" << clientIndex_ << ")" << std::endl;
 
 	PacketInfo packet{ clientIndex_, (UINT16)PACKET_ID::SYS_USER_CONNECT, 0 };
 	mPacketManager->PushSystemPacket(packet);
@@ -14,7 +14,7 @@ void ChatServer::OnConnect(const UINT32 clientIndex_)
 
 void ChatServer::OnClose(const UINT32 clientIndex_) 
 {
-	std::cout<<("[OnClose] 클라이언트: Index(%d)\n", clientIndex_);
+	std::cout << "[OnClose] 클라이언트: Index(" << clientIndex_ << ")" << std::endl;
 
 	PacketInfo packet{ clientIndex_, (UINT16)PACKET_ID::SYS_USER_DISCONNECT, 0 };
 	mPacketManager->PushSystemPacket(packet);
@@ -22,7 +22,7 @@ void ChatServer::OnClose(const UINT32 clientIndex_)
 
 void ChatServer::OnReceive(const UINT32 clientIndex_, const UINT32 size_, char* pData_)
 {
-	std::cout<<("[OnReceive] 클라이언트: Index(%d), dataSize(%d)\n", clientIndex_, size_);
+	std::cout << "[OnReceive] 클라이언트: Index(" << clientIndex_ << ", dataSize(" << size_ << std::endl;
 
 	mPacketManager->ReceivePacketData(clientIndex_, size_, pData_);
 }

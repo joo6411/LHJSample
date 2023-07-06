@@ -201,14 +201,14 @@ void PacketManager::ProcessRecvPacket(const UINT32 clientIndex_, const UINT16 pa
 
 void PacketManager::ProcessUserConnect(UINT32 clientIndex_, UINT16 packetSize_, char* pPacket_)
 {
-	std::cout<<("[ProcessUserConnect] clientIndex: %d\n", clientIndex_);
+	std::cout << "[ProcessUserConnect] clientIndex: " << clientIndex_ << std::endl;
 	auto pUser = mUserManager->GetUserByConnIdx(clientIndex_);
 	pUser->Clear();
 }
 
 void PacketManager::ProcessUserDisConnect(UINT32 clientIndex_, UINT16 packetSize_, char* pPacket_)
 {
-	std::cout<<("[ProcessUserDisConnect] clientIndex: %d\n", clientIndex_);
+	std::cout << "[ProcessUserDisConnect] clientIndex: " << clientIndex_ << std::endl;
 	ClearConnectionInfo(clientIndex_);
 }
 

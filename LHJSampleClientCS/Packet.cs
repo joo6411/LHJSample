@@ -41,7 +41,7 @@ namespace LHJSampleClientCS
     }
 
 
-    public class LoginReqPacket
+    public class REQ_LOGIN_PACKET
     {
         byte[] UserID = new byte[PacketDef.MAX_USER_ID_BYTE_LENGTH];
         byte[] UserPW = new byte[PacketDef.MAX_USER_PW_BYTE_LENGTH];
@@ -61,7 +61,7 @@ namespace LHJSampleClientCS
         }
     }
 
-    public class LoginResPacket
+    public class ACK_LOGIN_PACKET
     {
         public UInt16 Result;
 
@@ -73,7 +73,7 @@ namespace LHJSampleClientCS
     }
 
 
-    public class RoomEnterReqPacket
+    public class REQ_ROOM_ENTER_PACKET
     {
         int RoomNumber;
         public void SetValue(int roomNumber)
@@ -89,15 +89,13 @@ namespace LHJSampleClientCS
         }
     }
 
-    public class RoomEnterResPacket
+    public class ACK_ROOM_ENTER_PACKET
     {
         public UInt16 Result;
-        //public Int64 RoomUserUniqueId;
 
         public bool FromBytes(byte[] bodyData)
         {
             Result = BitConverter.ToUInt16(bodyData, 0);
-            //RoomUserUniqueId = BitConverter.ToInt64(bodyData, 2);
             return true;
         }
     }

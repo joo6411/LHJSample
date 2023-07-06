@@ -32,10 +32,9 @@ namespace LHJSampleClientCS
 
         void SetPacketHandler()
         {
+            PacketFuncDic.Add(PACKET_ID.ACK_LOGIN, PacketProcess_AckLogin);
+            PacketFuncDic.Add(PACKET_ID.ACK_ROOM_ENTER, PacketProcess_AckRoomEnter);
             /*
-            PacketFuncDic.Add(PACKET_ID.DEV_ECHO, PacketProcess_DevEcho);
-            PacketFuncDic.Add(PACKET_ID.LOGIN_RES, PacketProcess_LoginResponse);
-            PacketFuncDic.Add(PACKET_ID.ROOM_ENTER_RES, PacketProcess_RoomEnterResponse);
             PacketFuncDic.Add(PACKET_ID.ROOM_USER_LIST_NTF, PacketProcess_RoomUserListNotify);
             PacketFuncDic.Add(PACKET_ID.ROOM_NEW_USER_NTF, PacketProcess_RoomNewUserNotify);
             PacketFuncDic.Add(PACKET_ID.ROOM_LEAVE_RES, PacketProcess_RoomLeaveResponse);
@@ -61,24 +60,18 @@ namespace LHJSampleClientCS
             }
         }
 
-        void PacketProcess_DevEcho(byte[] bodyData)
+        void PacketProcess_AckLogin(byte[] bodyData)
         {
-            DevLog.Write($"Echo:  {Encoding.UTF8.GetString(bodyData)}");
-        }
-
-
-        void PacketProcess_LoginResponse(byte[] bodyData)
-        {
-            var responsePkt = new LoginResPacket();
+            var responsePkt = new ACK_LOGIN_PACKET();
             responsePkt.FromBytes(bodyData);
 
             DevLog.Write($"로그인 결과:  {(ERROR_CODE)responsePkt.Result}");
         }
 
 
-        void PacketProcess_RoomEnterResponse(byte[] bodyData)
+        void PacketProcess_AckRoomEnter(byte[] bodyData)
         {
-            var responsePkt = new RoomEnterResPacket();
+            var responsePkt = new ACK_ROOM_ENTER_PACKET();
             responsePkt.FromBytes(bodyData);
 
             DevLog.Write($"방 입장 결과:  {(ERROR_CODE)responsePkt.Result}");
@@ -193,7 +186,7 @@ namespace LHJSampleClientCS
             if (Network.Connect(address, port))
             {
                 ConnectBtn.Enabled = false;
-                DevLog.Write($"서버 접속 중", LOG_LEVEL.INFO);
+                DevLog.Write($"서버 접속 성공", LOG_LEVEL.INFO);
             }
             else
             {
@@ -380,6 +373,30 @@ namespace LHJSampleClientCS
             }
 
             SendPacketQueue.Enqueue(dataSource.ToArray());
+        }
+
+        private void LoginBtn_Click(object sender, EventArgs e)
+        {
+            var loginReq = new REQ_LOGIN_PACKET();
+            loginReq.SetValue(IDText.Text, PWText.Text);
+
+            PostSendPacket(PACKET_ID.REQ_LOGIN, loginReq.ToBytes());
+            DevLog.Write($"로그인 요청:  {IDText.Text}, {PWText.Text}");
+        }
+
+        private void RoomEnterBtn_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void RoomListRefreshBtn_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void RoomCreateBtn_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

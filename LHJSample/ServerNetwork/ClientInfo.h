@@ -12,7 +12,7 @@ public:
 	~ClientInfo() {}
 	void Init(const UINT32 index) { mIndex = index; }
 	UINT32 GetIndex() { return mIndex; }
-	bool IsConnectd() { return mSock != INVALID_SOCKET; }
+	bool IsConnected() { return mSock != INVALID_SOCKET; }
 	SOCKET GetSock() { return mSock; }
 	char* RecvBuffer() { return mRecvBuf; }
 
