@@ -80,7 +80,7 @@
     <ClInclude Include="RedisTaskDefine.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="ErrorCode.h">
+    <ClInclude Include="ResultCode.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Room\Room.h">

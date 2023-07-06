@@ -47,7 +47,7 @@ namespace LHJSampleClientCS
         void PacketProcess(PacketData packet)
         {
             var packetType = (PACKET_ID)packet.PacketID;
-            //DevLog.Write("Packet Error:  PacketID:{packet.PacketID.ToString()},  Error: {(ERROR_CODE)packet.Result}");
+            //DevLog.Write("Packet Error:  PacketID:{packet.PacketID.ToString()},  Error: {(RESULT_CODE)packet.Result}");
             //DevLog.Write("RawPacket: " + packet.PacketID.ToString() + ", " + PacketDump.Bytes(packet.BodyData));
 
             if (PacketFuncDic.ContainsKey(packetType))
@@ -65,7 +65,7 @@ namespace LHJSampleClientCS
             var responsePkt = new ACK_LOGIN_PACKET();
             responsePkt.FromBytes(bodyData);
 
-            DevLog.Write($"로그인 결과:  {(ERROR_CODE)responsePkt.Result}");
+            DevLog.Write($"로그인 결과:  {(RESULT_CODE)responsePkt.Result}");
         }
 
 
@@ -74,7 +74,7 @@ namespace LHJSampleClientCS
             var responsePkt = new ACK_ROOM_ENTER_PACKET();
             responsePkt.FromBytes(bodyData);
 
-            DevLog.Write($"방 입장 결과:  {(ERROR_CODE)responsePkt.Result}");
+            DevLog.Write($"방 입장 결과:  {(RESULT_CODE)responsePkt.Result}");
         }
 
         void PacketProcess_RoomUserListNotify(byte[] bodyData)
@@ -106,7 +106,7 @@ namespace LHJSampleClientCS
             var responsePkt = new RoomLeaveResPacket();
             responsePkt.FromBytes(bodyData);
 
-            DevLog.Write($"방 나가기 결과:  {(ERROR_CODE)responsePkt.Result}");
+            DevLog.Write($"방 나가기 결과:  {(RESULT_CODE)responsePkt.Result}");
         }
 
         void PacketProcess_RoomLeaveUserNotify(byte[] bodyData)
@@ -125,10 +125,10 @@ namespace LHJSampleClientCS
             var responsePkt = new RoomChatResPacket();
             responsePkt.FromBytes(bodyData);
 
-            var errorCode = (ERROR_CODE)responsePkt.Result;
-            var msg = $"방 채팅 요청 결과:  {(ERROR_CODE)responsePkt.Result}";
+            var errorCode = (RESULT_CODE)responsePkt.Result;
+            var msg = $"방 채팅 요청 결과:  {(RESULT_CODE)responsePkt.Result}";
             /*
-            if (errorCode == ERROR_CODE.ERROR_NONE)
+            if (errorCode == RESULT_CODE.ERROR_NONE)
             {
                 DevLog.Write(msg, LOG_LEVEL.ERROR);
             }

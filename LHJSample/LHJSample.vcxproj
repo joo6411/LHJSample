@@ -158,7 +158,7 @@
     <ClInclude Include="User\User.h" />
     <ClInclude Include="RedisManager.h" />
     <ClInclude Include="RedisTaskDefine.h" />
-    <ClInclude Include="ErrorCode.h" />
+    <ClInclude Include="ResultCode.h" />
     <ClInclude Include="Room\Room.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

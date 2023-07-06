@@ -31,11 +31,11 @@ namespace LHJSampleClientCS
 
     public class ErrorNtfPacket
     {
-        public ERROR_CODE Error;
+        public RESULT_CODE Error;
 
         public bool FromBytes(byte[] bodyData)
         {
-            Error = (ERROR_CODE)BitConverter.ToInt16(bodyData, 0);
+            Error = (RESULT_CODE)BitConverter.ToInt16(bodyData, 0);
             return true;
         }
     }

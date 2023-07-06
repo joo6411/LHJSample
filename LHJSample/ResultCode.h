@@ -1,6 +1,6 @@
 #pragma once
 
-enum class ERROR_CODE : unsigned short
+enum class RESULT_CODE : unsigned short
 {
 	NONE = 0,
 
@@ -9,9 +9,10 @@ enum class ERROR_CODE : unsigned short
 
 	CREATE_ACCOUNT_FAIL = 20,
 
-	LOGIN_USER_ALREADY = 30,
-	LOGIN_USER_USED_ALL_OBJ = 31,
-	LOGIN_USER_INVALID_PW = 32,
+	LOGIN_SUCCESS = 30,
+	LOGIN_USER_ALREADY = 31,
+	LOGIN_USER_USED_ALL_OBJ = 32,
+	LOGIN_USER_INVALID_PW = 33,
 
 	NEW_ROOM_USED_ALL_OBJ = 40,
 	NEW_ROOM_FAIL_ENTER = 41,

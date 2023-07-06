@@ -220,10 +220,10 @@ void PacketManager::ProcessCreateAccount(UINT32 clientIndex_, UINT16 packetSize_
 	}
 
 	auto packet = reinterpret_cast<REQ_CREATE_ACCOUNT_PACKET*>(pPacket_);
-	ERROR_CODE err = ERROR_CODE::NONE;
+	RESULT_CODE err = RESULT_CODE::NONE;
 	if (!mAccountDB->CreateAccount(packet->UserID, packet->UserPW))
 	{
-		err = ERROR_CODE::CREATE_ACCOUNT_FAIL;
+		err = RESULT_CODE::CREATE_ACCOUNT_FAIL;
 	}
 
 	ACK_CREATE_ACCOUNT_PACKET createAccountPacket;
@@ -252,7 +252,7 @@ void PacketManager::ProcessLogin(UINT32 clientIndex_, UINT16 packetSize_, char* 
 	if (mUserManager->GetCurrentUserCnt() >= mUserManager->GetMaxUserCnt())
 	{
 		//접속자수가 최대수를 차지해서 접속불가
-		ackLoginPacket.Result = (UINT16)ERROR_CODE::LOGIN_USER_USED_ALL_OBJ;
+		ackLoginPacket.Result = (UINT16)RESULT_CODE::LOGIN_USER_USED_ALL_OBJ;
 		return;
 	}
 
@@ -278,16 +278,17 @@ void PacketManager::ProcessLogin(UINT32 clientIndex_, UINT16 packetSize_, char* 
 		if (mAccountDB->SelectAccount(packet->UserID, packet->UserPW))
 		{
 			mUserManager->AddUser(packet->UserID, clientIndex_);
+			ackLoginPacket.Result = (UINT16)RESULT_CODE::LOGIN_SUCCESS;
 		}
 		else
 		{
-			ackLoginPacket.Result = (UINT16)ERROR_CODE::LOGIN_USER_INVALID_PW;
+			ackLoginPacket.Result = (UINT16)RESULT_CODE::LOGIN_USER_INVALID_PW;
 		}
 	}
 	else
 	{
 		//접속중인 유저여서 실패를 반환한다.
-		ackLoginPacket.Result = (UINT16)ERROR_CODE::LOGIN_USER_ALREADY;
+		ackLoginPacket.Result = (UINT16)RESULT_CODE::LOGIN_USER_ALREADY;
 		return;
 	}
 
@@ -322,7 +323,7 @@ void PacketManager::ProcessRoomInfo(UINT32 clientIndex_, UINT16 packetSize_, cha
 	ACK_ROOM_INFO_PACKET roomInfoAckPacket;
 	roomInfoAckPacket.PacketId = (UINT16)PACKET_ID::ACK_ROOM_INFO;
 	roomInfoAckPacket.PacketLength = sizeof(ACK_ROOM_INFO_PACKET);
-	roomInfoAckPacket.Result = (UINT16)ERROR_CODE::NONE;
+	roomInfoAckPacket.Result = (UINT16)RESULT_CODE::NONE;
 	roomInfoAckPacket.Users = room->GetRoomMemberList();
 
 	SendPacketFunc(clientIndex_, sizeof(ACK_ROOM_INFO_PACKET), (char*)&roomInfoAckPacket);
@@ -352,7 +353,7 @@ void PacketManager::ProcessRoomChatMessage(UINT32 clientIndex_, UINT16 packetSiz
 	ACK_ROOM_CHAT_PACKET roomChatAckPacket;
 	roomChatAckPacket.PacketId = (UINT16)PACKET_ID::ACK_ROOM_CHAT;
 	roomChatAckPacket.PacketLength = sizeof(ACK_ROOM_CHAT_PACKET);
-	roomChatAckPacket.Result = (INT16)ERROR_CODE::NONE;
+	roomChatAckPacket.Result = (INT16)RESULT_CODE::NONE;
 
 	auto reqUser = mUserManager->GetUserByConnIdx(clientIndex_);
 	auto roomNum = reqUser->GetCurrentRoom();
@@ -360,7 +361,7 @@ void PacketManager::ProcessRoomChatMessage(UINT32 clientIndex_, UINT16 packetSiz
 	auto room = mRoomManager->GetRoomByNumber(roomNum);
 	if (room == nullptr)
 	{
-		roomChatAckPacket.Result = (INT16)ERROR_CODE::CHAT_ROOM_INVALID_ROOM_NUMBER;
+		roomChatAckPacket.Result = (INT16)RESULT_CODE::CHAT_ROOM_INVALID_ROOM_NUMBER;
 		SendPacketFunc(clientIndex_, sizeof(ACK_ROOM_CHAT_PACKET), (char*)&roomChatAckPacket);
 		return;
 	}

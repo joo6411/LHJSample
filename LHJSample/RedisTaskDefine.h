@@ -3,7 +3,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
-#include "ErrorCode.h"
+#include "ResultCode.h"
 #include "Packet.h"
 
 enum class RedisTaskID : UINT16
@@ -41,7 +41,7 @@ struct RedisLoginReq
 
 struct RedisLoginRes
 {
-	UINT16 Result = (UINT16)ERROR_CODE::NONE;
+	UINT16 Result = (UINT16)RESULT_CODE::NONE;
 };
 
 #pragma pack(pop) //위에 설정된 패킹설정이 사라짐

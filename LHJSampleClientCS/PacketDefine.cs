@@ -48,7 +48,7 @@ namespace LHJSampleClientCS
     }
 
 
-    public enum ERROR_CODE : Int16
+    public enum RESULT_CODE : UInt16
     {
         NONE = 0,
 
@@ -57,9 +57,10 @@ namespace LHJSampleClientCS
 
         CREATE_ACCOUNT_FAIL = 20,
 
-        LOGIN_USER_ALREADY = 30,
-        LOGIN_USER_USED_ALL_OBJ = 31,
-        LOGIN_USER_INVALID_PW = 32,
+        LOGIN_SUCCESS = 30,
+        LOGIN_USER_ALREADY = 31,
+        LOGIN_USER_USED_ALL_OBJ = 32,
+        LOGIN_USER_INVALID_PW = 33,
 
         NEW_ROOM_USED_ALL_OBJ = 40,
         NEW_ROOM_FAIL_ENTER = 41,

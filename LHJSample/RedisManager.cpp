@@ -96,23 +96,23 @@ void RedisManager::TaskProcessThread()
 				auto pRequest = (RedisLoginReq*)task.pData;
 
 				RedisLoginRes bodyData;
-				bodyData.Result = (UINT16)ERROR_CODE::LOGIN_USER_INVALID_PW;
+				bodyData.Result = (UINT16)RESULT_CODE::LOGIN_USER_INVALID_PW;
 
 				std::string value;
 				if (mConn->get(pRequest->UserID, value))
 				{
-					bodyData.Result = (UINT16)ERROR_CODE::NONE;
+					bodyData.Result = (UINT16)RESULT_CODE::NONE;
 
 					if (value.compare(pRequest->UserPW) == 0)
 					{
-						bodyData.Result = (UINT16)ERROR_CODE::NONE;
+						bodyData.Result = (UINT16)RESULT_CODE::NONE;
 					}
 				}
 				else
 				{
 					std::cout << "User " << pRequest->UserID << " Created\n";
 					//mConn->hset(pRequest->UserID, , pRequest->UserPW,);
-					bodyData.Result = (UINT16)ERROR_CODE::NONE;
+					bodyData.Result = (UINT16)RESULT_CODE::NONE;
 				}
 
 				RedisTask resTask;

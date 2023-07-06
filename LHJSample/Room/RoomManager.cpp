@@ -22,11 +22,11 @@ UINT16 RoomManager::EnterUser(INT32 roomNumber_, User* user_)
 	auto room = GetRoomByNumber(roomNumber_);
 	if (room == nullptr)
 	{
-		return (UINT16)ERROR_CODE::ROOM_INVALID_INDEX;
+		return (UINT16)RESULT_CODE::ROOM_INVALID_INDEX;
 	}
 	if (room->GetCurrentUserCount() >= room->GetMaxUserCount())
 	{
-		return (UINT16)ERROR_CODE::ROOM_FULL;
+		return (UINT16)RESULT_CODE::ROOM_FULL;
 	}
 
 	return room->EnterUser(user_);
@@ -37,12 +37,12 @@ INT16 RoomManager::LeaveUser(INT32 roomNumber_, User* user_)
 	auto room = GetRoomByNumber(roomNumber_);
 	if (room == nullptr)
 	{
-		return (INT16)ERROR_CODE::ROOM_INVALID_INDEX;
+		return (INT16)RESULT_CODE::ROOM_INVALID_INDEX;
 	}
 
 	user_->SetDomainState(User::DOMAIN_STATE::LOGIN);
 	room->LeaveUser(user_);
-	return (INT16)ERROR_CODE::NONE;
+	return (INT16)RESULT_CODE::NONE;
 }
 
 Room* RoomManager::GetRoomByNumber(INT32 number_)

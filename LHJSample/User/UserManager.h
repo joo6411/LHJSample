@@ -1,7 +1,7 @@
 #pragma once
 #include <unordered_map>
 
-#include "../ErrorCode.h"
+#include "../ResultCode.h"
 #include "User.h"
 
 class UserManager
@@ -16,7 +16,7 @@ public:
 	void IncreaseUserCnt() { mCurrentUserCnt++; }
 	void DecreaseUserCnt();
 
-	ERROR_CODE AddUser(char* userID_, int clientIndex_);
+	RESULT_CODE AddUser(char* userID_, int clientIndex_);
 
 	INT32 FindUserIndexByID(char* userID_);
 	void DeleteUserInfo(User* user_);
