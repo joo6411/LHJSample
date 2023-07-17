@@ -55,3 +55,14 @@ Room* RoomManager::GetRoomByNumber(INT32 number_)
 	auto index = (number_ - mBeginRoomNumber);
 	return mRoomList[index];
 }
+
+std::vector<int> RoomManager::GetRoomList()
+{
+	std::vector<int> result;
+	for (auto it = mRoomList.begin(); it != mRoomList.end(); it++)
+	{
+		result.push_back((*it)->GetRoomNumber());
+	}
+
+	return result;
+}

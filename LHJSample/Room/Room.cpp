@@ -16,16 +16,18 @@ UINT16 Room::EnterUser(User* user_)
 	NOTIFY_ROOM_INFO_PACKET roomInfoNtfyPacket;
 	roomInfoNtfyPacket.PacketId = (UINT16)PACKET_ID::NOTIFY_ROOM_INFO;
 	roomInfoNtfyPacket.PacketLength = sizeof(NOTIFY_ROOM_INFO_PACKET);
-	roomInfoNtfyPacket.Result = (UINT16)RESULT_CODE::NONE;
 	std::string id = user_->GetUserId();
-	roomInfoNtfyPacket.EnterUser = id.c_str();
+	for (int i = 0; i < id.size(); i++)
+	{
+		roomInfoNtfyPacket.EnterUser[i] = id[i];
+	}
 	SendToAllUser(sizeof(roomInfoNtfyPacket), (char*)&roomInfoNtfyPacket, user_->GetNetConnIdx(), false);
 
 	mUserList.push_back(user_);
 	++mCurrentUserCount;
 
 	user_->EnterRoom(mRoomNum);
-	return (UINT16)RESULT_CODE::NONE;
+	return (UINT16)RESULT_CODE::ENTER_ROOM_SUCCESS;
 }
 
 void Room::LeaveUser(User* leaveUser_)
@@ -70,12 +72,12 @@ void Room::SendToAllUser(const UINT16 dataSize_, char* data_, const INT32 passUs
 	}
 }
 
-std::list<const char*> Room::GetRoomMemberList()
+std::vector<std::string> Room::GetRoomMemberList()
 {
-	std::list<const char*> roomUser;
+	std::vector<std::string> roomUser;
 	for (auto user : mUserList)
 	{
-		roomUser.push_back(user->GetUserId().c_str());
+		roomUser.push_back(user->GetUserId());
 	}
 
 	return roomUser;

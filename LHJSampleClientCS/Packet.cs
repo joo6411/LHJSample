@@ -72,10 +72,50 @@ namespace LHJSampleClientCS
         }
     }
 
+    public class REQ_LOBBY_INFO_PACKET
+    {
+        public byte[] ToBytes()
+        {
+            return null;
+        }
+    }
+
+    public class ACK_LOBBY_INFO_PACKET
+    {
+        public UInt16 Result;
+
+        public bool FromBytes(byte[] bodyData)
+        {
+            Result = BitConverter.ToUInt16(bodyData, 0);
+            return true;
+        }
+    }
+
+    public class NOTIFY_LOBBY_INFO_PACKET
+    {
+        public List<int> Room = new List<int>();
+
+        public bool FromBytes(byte[] bodyData)
+        {
+            var readPos = 0;
+            var roomCount = (int)bodyData[readPos];
+            readPos += 4;
+
+            for (int i = 0; i < roomCount; ++i)
+            {
+                var roomNum = BitConverter.ToInt32(bodyData, readPos);
+                readPos += 4;
+                Room.Add(roomNum);
+            }
+
+            return true;
+        }
+    }
 
     public class REQ_ROOM_ENTER_PACKET
     {
         int RoomNumber;
+
         public void SetValue(int roomNumber)
         {
             RoomNumber = roomNumber;
@@ -100,7 +140,7 @@ namespace LHJSampleClientCS
         }
     }
 
-    public class RoomUserListNtfPacket
+    public class NOTIFY_ROOM_INFO_PACKET
     {
         public int UserCount = 0;
         public List<Int64> UserUniqueIdList = new List<Int64>();
@@ -132,6 +172,54 @@ namespace LHJSampleClientCS
         }
     }
 
+    public class REQ_ROOM_INFO_PACKET
+    {
+        public byte[] ToBytes()
+        {
+            return null;
+        }
+    }
+
+    public class ACK_ROOM_INFO_PACKET
+    {
+        public UInt16 Result;
+        public int UserCount;
+        public List<string> UserIDList = new List<string>();
+
+        public bool FromBytes(byte[] bodyData)
+        {
+            var readPos = 0;
+            Result = BitConverter.ToUInt16(bodyData, 0);
+            readPos += 2;
+            var userCount = (int)bodyData[readPos];
+            readPos += 4;
+
+            var readPosTemp = readPos;
+            List<int> idLen = new List<int>();
+            var currentPos = readPosTemp;
+
+            for(int i = readPosTemp; i < bodyData.Length; i++)
+            {
+                if (bodyData[i] == '\0')
+                {
+                    idLen.Add(i - currentPos + 1);
+                    currentPos = i;
+                }
+            }
+
+            for (int i = 0; i < userCount; ++i)
+            {
+                var id = Encoding.UTF8.GetString(bodyData, readPos, idLen[i]);
+                readPos += idLen[i];
+
+                UserIDList.Add(id);
+            }
+
+            UserCount = userCount;
+            return true;
+        }
+    }
+
     public class RoomNewUserNtfPacket
     {
         public Int64 UserUniqueId;
@@ -155,7 +243,7 @@ namespace LHJSampleClientCS
     }
 
 
-    public class RoomChatReqPacket
+    public class REQ_ROOM_CHAT_PACKET
     {
         byte[] Msg = new byte[PacketDef.MAX_CHAT_MSG_SIZE];
 
@@ -172,7 +260,7 @@ namespace LHJSampleClientCS
         }
     }
 
-    public class RoomChatResPacket
+    public class ACK_ROOM_CHAT_PACKET
     {
         public UInt16 Result;
 
@@ -183,7 +271,7 @@ namespace LHJSampleClientCS
         }
     }
 
-    public class RoomChatNtfPacket
+    public class NOTIFY_ROOM_CHAT_PACKET
     {
         public string UserID;
         public string Message;
@@ -191,9 +279,9 @@ namespace LHJSampleClientCS
         public bool FromBytes(byte[] bodyData)
         {
             UserID = Encoding.UTF8.GetString(bodyData, 0, PacketDef.MAX_USER_ID_BYTE_LENGTH);
-            UserID = UserID.Trim();
+            UserID = UserID.Replace("\0", string.Empty);
             Message = Encoding.UTF8.GetString(bodyData, PacketDef.MAX_USER_ID_BYTE_LENGTH, PacketDef.MAX_CHAT_MSG_SIZE);
-            Message = Message.Trim();
+            Message = Message.Replace("\0", string.Empty);
 
             return true;
         }

@@ -31,20 +31,24 @@ namespace LHJSampleClientCS
         REQ_LOGIN = 210,
         ACK_LOGIN = 211,
 
-        REQ_ROOM_ENTER = 220,
-        ACK_ROOM_ENTER = 221,
+        REQ_LOBBY_INFO = 300,
+        ACK_LOBBY_INFO = 301,
+        NOTIFY_LOBBY_INFO = 302,
 
-        REQ_ROOM_LEAVE = 230,
-        ACK_ROOM_LEAVE = 231,
-        NOTIFY_ROOM_LEAVE = 232,
+        REQ_ROOM_ENTER = 400,
+        ACK_ROOM_ENTER = 401,
 
-        REQ_ROOM_CHAT = 240,
-        ACK_ROOM_CHAT = 241,
-        NOTIFY_ROOM_CHAT = 242,
+        REQ_ROOM_LEAVE = 410,
+        ACK_ROOM_LEAVE = 411,
+        NOTIFY_ROOM_LEAVE = 412,
 
-        REQ_ROOM_INFO = 250,
-        ACK_ROOM_INFO = 251,
-        NOTIFY_ROOM_INFO = 252,
+        REQ_ROOM_CHAT = 420,
+        ACK_ROOM_CHAT = 421,
+        NOTIFY_ROOM_CHAT = 422,
+
+        REQ_ROOM_INFO = 430,
+        ACK_ROOM_INFO = 431,
+        NOTIFY_ROOM_INFO = 432
     }
 
 
@@ -65,10 +69,11 @@ namespace LHJSampleClientCS
         NEW_ROOM_USED_ALL_OBJ = 40,
         NEW_ROOM_FAIL_ENTER = 41,
 
-        ENTER_ROOM_NOT_FINDE_USER = 50,
-        ENTER_ROOM_INVALID_USER_STATUS = 51,
-        ENTER_ROOM_NOT_USED_STATUS = 52,
-        ENTER_ROOM_FULL_USER = 53,
+        ENTER_ROOM_SUCCESS = 50,
+        ENTER_ROOM_NOT_FINDE_USER = 51,
+        ENTER_ROOM_INVALID_USER_STATUS = 52,
+        ENTER_ROOM_NOT_USED_STATUS = 53,
+        ENTER_ROOM_FULL_USER = 54,
 
         ROOM_INVALID_INDEX = 60,
         ROOM_NOT_USED = 61,
@@ -78,5 +83,9 @@ namespace LHJSampleClientCS
         LEAVE_ROOM_INVALID_ROOM_INDEX = 70,
 
         CHAT_ROOM_INVALID_ROOM_NUMBER = 80,
+
+        LOBBY_INFO_SUCCESS = 90,
+
+        CHAT_ROOM_SUCCESS = 100,
     }
 }

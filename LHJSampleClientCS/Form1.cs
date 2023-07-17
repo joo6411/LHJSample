@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Windows.Interop;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
 
 namespace LHJSampleClientCS
@@ -34,13 +35,16 @@ namespace LHJSampleClientCS
         {
             PacketFuncDic.Add(PACKET_ID.ACK_LOGIN, PacketProcess_AckLogin);
             PacketFuncDic.Add(PACKET_ID.ACK_ROOM_ENTER, PacketProcess_AckRoomEnter);
+            PacketFuncDic.Add(PACKET_ID.ACK_LOBBY_INFO, PacketProcess_AckLobbyInfo);
+            PacketFuncDic.Add(PACKET_ID.NOTIFY_LOBBY_INFO, PacketProcess_NotifyLobbyInfo);
+            PacketFuncDic.Add(PACKET_ID.ACK_ROOM_CHAT, PacketProcess_RoomChatResponse);
+            PacketFuncDic.Add(PACKET_ID.NOTIFY_ROOM_CHAT, PacketProcess_RoomChatNotify);
+            PacketFuncDic.Add(PACKET_ID.ACK_ROOM_INFO, PacketProcess_RoomInfoAck);
             /*
             PacketFuncDic.Add(PACKET_ID.ROOM_USER_LIST_NTF, PacketProcess_RoomUserListNotify);
             PacketFuncDic.Add(PACKET_ID.ROOM_NEW_USER_NTF, PacketProcess_RoomNewUserNotify);
             PacketFuncDic.Add(PACKET_ID.ROOM_LEAVE_RES, PacketProcess_RoomLeaveResponse);
             PacketFuncDic.Add(PACKET_ID.ROOM_LEAVE_USER_NTF, PacketProcess_RoomLeaveUserNotify);
-            PacketFuncDic.Add(PACKET_ID.ROOM_CHAT_RES, PacketProcess_RoomChatResponse);
-            PacketFuncDic.Add(PACKET_ID.ROOM_CHAT_NOTIFY, PacketProcess_RoomChatNotify);
             */
         }
 
@@ -66,8 +70,38 @@ namespace LHJSampleClientCS
             responsePkt.FromBytes(bodyData);
 
             DevLog.Write($"로그인 결과:  {(RESULT_CODE)responsePkt.Result}");
+
+            if ((RESULT_CODE)responsePkt.Result == RESULT_CODE.LOGIN_SUCCESS)
+            {
+                var lobbyReq = new REQ_LOBBY_INFO_PACKET();
+
+                PostSendPacket(PACKET_ID.REQ_LOBBY_INFO, lobbyReq.ToBytes());
+                DevLog.Write($"로비정보 요청");
+            }
         }
 
+        void PacketProcess_NotifyLobbyInfo(byte[] bodyData)
+        {
+            var notifyPkt = new NOTIFY_LOBBY_INFO_PACKET();
+            notifyPkt.FromBytes(bodyData);
+
+            LobbyRoomList.Items.Clear();
+
+            for (int i = 0; i < notifyPkt.Room.Count; i++)
+            {
+                LobbyRoomList.Items.Add(notifyPkt.Room[i]);
+            }
+
+            DevLog.Write($"로비 정보 갱신");
+        }
+
+        void PacketProcess_AckLobbyInfo(byte[] bodyData)
+        {
+            var responsePkt = new ACK_LOBBY_INFO_PACKET();
+            responsePkt.FromBytes(bodyData);
+
+            DevLog.Write($"로비 정보 요청 결과:  {(RESULT_CODE)responsePkt.Result}");
+        }
 
         void PacketProcess_AckRoomEnter(byte[] bodyData)
         {
@@ -75,11 +109,20 @@ namespace LHJSampleClientCS
             responsePkt.FromBytes(bodyData);
 
             DevLog.Write($"방 입장 결과:  {(RESULT_CODE)responsePkt.Result}");
+
+            if ((RESULT_CODE)responsePkt.Result == RESULT_CODE.ENTER_ROOM_SUCCESS)
+            {
+                var roomInfoReq = new REQ_ROOM_INFO_PACKET();
+
+                PostSendPacket(PACKET_ID.REQ_ROOM_INFO, roomInfoReq.ToBytes());
+                DevLog.Write($"방 정보 요청");
+            }
         }
+
 
         void PacketProcess_RoomUserListNotify(byte[] bodyData)
         {
-            var notifyPkt = new RoomUserListNtfPacket();
+            var notifyPkt = new NOTIFY_ROOM_INFO_PACKET();
             notifyPkt.FromBytes(bodyData);
 
             for (int i = 0; i < notifyPkt.UserCount; ++i)
@@ -122,7 +165,7 @@ namespace LHJSampleClientCS
 
         void PacketProcess_RoomChatResponse(byte[] bodyData)
         {
-            var responsePkt = new RoomChatResPacket();
+            var responsePkt = new ACK_ROOM_CHAT_PACKET();
             responsePkt.FromBytes(bodyData);
 
             var errorCode = (RESULT_CODE)responsePkt.Result;
@@ -142,17 +185,16 @@ namespace LHJSampleClientCS
 
         void PacketProcess_RoomChatNotify(byte[] bodyData)
         {
-            var responsePkt = new RoomChatNtfPacket();
-            responsePkt.FromBytes(bodyData);
+            var notifyPkt = new NOTIFY_ROOM_CHAT_PACKET();
+            notifyPkt.FromBytes(bodyData);
 
-            AddRoomChatMessageList(responsePkt.UserID, responsePkt.Message);
+            AddRoomChatMessageList(notifyPkt.UserID, notifyPkt.Message);
         }
 
         void AddRoomChatMessageList(string userID, string msgssage)
         {
             var msg = $"{userID}:  {msgssage}";
 
-            /*
             if (listBoxRoomChatMsg.Items.Count > 512)
             {
                 listBoxRoomChatMsg.Items.Clear();
@@ -160,17 +202,18 @@ namespace LHJSampleClientCS
 
             listBoxRoomChatMsg.Items.Add(msg);
             listBoxRoomChatMsg.SelectedIndex = listBoxRoomChatMsg.Items.Count - 1;
-            */
         }
 
-
-        void PacketProcess_RoomRelayNotify(byte[] bodyData)
+        void PacketProcess_RoomInfoAck(byte[] bodyData)
         {
-            var notifyPkt = new RoomRelayNtfPacket();
-            notifyPkt.FromBytes(bodyData);
+            var ackPkt = new ACK_ROOM_INFO_PACKET();
+            ackPkt.FromBytes(bodyData);
 
-            var stringData = Encoding.UTF8.GetString(notifyPkt.RelayData);
-            DevLog.Write($"방에서 릴레이 받음. {notifyPkt.UserUniqueId} - {stringData}");
+            DevLog.Write($"룸 정보 수신");
+            for(int i = 0;i < ackPkt.UserCount; i++)
+            {
+                UserList.Items.Add(ackPkt.UserIDList[i]);
+            }
         }
 
         public Form1()
@@ -386,17 +429,34 @@ namespace LHJSampleClientCS
 
         private void RoomEnterBtn_Click(object sender, EventArgs e)
         {
+            var enterReq = new REQ_ROOM_ENTER_PACKET();
+            enterReq.SetValue(LobbyRoomList.SelectedIndex);
 
+            PostSendPacket(PACKET_ID.REQ_ROOM_ENTER, enterReq.ToBytes());
+            DevLog.Write($"방 입장 요청: {LobbyRoomList.SelectedIndex}");
         }
 
         private void RoomListRefreshBtn_Click(object sender, EventArgs e)
         {
+            var lobbyInfoReq = new REQ_LOBBY_INFO_PACKET();
 
+            PostSendPacket(PACKET_ID.REQ_LOBBY_INFO, lobbyInfoReq.ToBytes());
+            DevLog.Write($"로비정보 요청");
         }
 
         private void RoomCreateBtn_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void ChatSend_Click(object sender, EventArgs e)
+        {
+            var roomChatReq = new REQ_ROOM_CHAT_PACKET();
+
+            roomChatReq.SetValue(ChatBox.Text);
+
+            PostSendPacket(PACKET_ID.REQ_ROOM_CHAT, roomChatReq.ToBytes());
+            DevLog.Write($"채팅 요청 : {ChatBox.Text}");
         }
     }
 }

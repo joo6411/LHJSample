@@ -3,6 +3,8 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <list>
+#include <vector>
+#include <string>
 
 // 클라이언트가 보낸 패킷을 저장하는 구조체
 struct RawPacketData
@@ -60,20 +62,24 @@ enum class  PACKET_ID : UINT16
 	REQ_LOGIN = 210,
 	ACK_LOGIN = 211,
 
-	REQ_ROOM_ENTER = 220,
-	ACK_ROOM_ENTER = 221,
+	REQ_LOBBY_INFO = 300,
+	ACK_LOBBY_INFO = 301,
+	NOTIFY_LOBBY_INFO = 302,
 
-	REQ_ROOM_LEAVE = 230,
-	ACK_ROOM_LEAVE = 231,
-	NOTIFY_ROOM_LEAVE =232,
+	REQ_ROOM_ENTER = 400,
+	ACK_ROOM_ENTER = 401,
 
-	REQ_ROOM_CHAT = 240,
-	ACK_ROOM_CHAT = 241,
-	NOTIFY_ROOM_CHAT = 242,
+	REQ_ROOM_LEAVE = 410,
+	ACK_ROOM_LEAVE = 411,
+	NOTIFY_ROOM_LEAVE = 412,
 
-	REQ_ROOM_INFO = 250,
-	ACK_ROOM_INFO =251,
-	NOTIFY_ROOM_INFO = 252,
+	REQ_ROOM_CHAT = 420,
+	ACK_ROOM_CHAT = 421,
+	NOTIFY_ROOM_CHAT = 422,
+
+	REQ_ROOM_INFO = 430,
+	ACK_ROOM_INFO = 431,
+	NOTIFY_ROOM_INFO = 432
 };
 
 
@@ -117,6 +123,21 @@ struct ACK_LOGIN_PACKET : public PACKET_HEADER
 	UINT16 Result;
 };
 
+struct REQ_LOBBY_INFO : public PACKET_HEADER
+{
+};
+
+struct ACK_LOBBY_INFO : public PACKET_HEADER
+{
+	UINT16 Result;
+};
+
+struct NOTIFY_LOBBY_INFO : public PACKET_HEADER
+{
+	int RoomCount;
+	std::vector<int> Room;
+};
+
 //- 룸에 들어가기 요청
 //const int MAX_ROOM_TITLE_SIZE = 32;
 struct REQ_ROOM_ENTER_PACKET : public PACKET_HEADER
@@ -139,13 +160,13 @@ struct REQ_ROOM_INFO_PACKET : public PACKET_HEADER
 struct ACK_ROOM_INFO_PACKET : public PACKET_HEADER
 {
 	INT16 Result;
-	std::list<const char*> Users;
+	int UserCount;
+	std::vector<std::string> Users;
 };
 
 struct NOTIFY_ROOM_INFO_PACKET : public PACKET_HEADER
 {
-	INT16 Result;
-	const char* EnterUser;
+	char EnterUser[MAX_USER_ID_LEN + 1];
 };
 
 //- 룸 나가기 요청

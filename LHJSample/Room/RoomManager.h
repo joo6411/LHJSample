@@ -1,5 +1,6 @@
 #pragma once
 #include "Room.h"
+#include <vector>
 
 class RoomManager
 {
@@ -11,6 +12,7 @@ public:
 	UINT16 EnterUser(INT32 roomNumber_, User* user_);
 	INT16 LeaveUser(INT32 roomNumber_, User* user_);
 	Room* GetRoomByNumber(INT32 number_);
+	std::vector<int> GetRoomList();
 
 	std::function<void(UINT32, UINT16, char*)> SendPacketFunc;
 

@@ -15,7 +15,7 @@ public:
 	INT32 GetMaxUserCount() { return mMaxUserCount; }
 	INT32 GetCurrentUserCount() { return mCurrentUserCount; }
 	INT32 GetRoomNumber() { return mRoomNum; }
-	std::list<const char*> GetRoomMemberList();
+	std::vector<std::string> GetRoomMemberList();
 
 	void Init(const INT32 roomNum_, const INT32 maxUserCount_);
 	UINT16 EnterUser(User* user_);

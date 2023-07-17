@@ -1,6 +1,7 @@
 #include <utility>
 #include <cstring>
 #include <iostream>
+#include <algorithm>
 
 #include "User/UserManager.h"
 #include "PacketManager.h"
@@ -45,6 +46,7 @@ void PacketManager::Init(const UINT32 maxClient_)
 	
 	mRecvFuntionDictionary[(int)PACKET_ID::REQ_CREATE_ACCOUNT] = &PacketManager::ProcessCreateAccount;
 	mRecvFuntionDictionary[(int)PACKET_ID::REQ_LOGIN] = &PacketManager::ProcessLogin;
+	mRecvFuntionDictionary[(int)PACKET_ID::REQ_LOBBY_INFO] = &PacketManager::ProcessLobbyInfo;
 	//mRecvFuntionDictionary[(int)RedisTaskID::RESPONSE_LOGIN] = &PacketManager::ProcessLoginDBResult;
 
 	mRecvFuntionDictionary[(int)PACKET_ID::REQ_ROOM_ENTER] = &PacketManager::ProcessEnterRoom;
@@ -295,6 +297,39 @@ void PacketManager::ProcessLogin(UINT32 clientIndex_, UINT16 packetSize_, char* 
 	SendPacketFunc(clientIndex_, sizeof(ACK_LOGIN_PACKET), (char*)&ackLoginPacket);
 }
 
+void PacketManager::ProcessLobbyInfo(UINT32 clientIndex_, UINT16 packetSize_, char* pPacket_)
+{
+	auto packet = reinterpret_cast<REQ_LOBBY_INFO*>(pPacket_);
+
+	ACK_LOBBY_INFO lobbyInfoAckPacket;
+	lobbyInfoAckPacket.PacketId = (UINT16)PACKET_ID::ACK_LOBBY_INFO;
+	lobbyInfoAckPacket.PacketLength = sizeof(ACK_LOBBY_INFO);
+	lobbyInfoAckPacket.Result = (UINT16)RESULT_CODE::LOBBY_INFO_SUCCESS;
+
+	SendPacketFunc(clientIndex_, sizeof(ACK_LOBBY_INFO), (char*)&lobbyInfoAckPacket);
+
+	NOTIFY_LOBBY_INFO lobbyInfoNtfPacket;
+	lobbyInfoNtfPacket.Room = mRoomManager->GetRoomList();
+
+	int packetLength = PACKET_HEADER_LENGTH + 4 + lobbyInfoNtfPacket.Room.size() * 4;
+	lobbyInfoNtfPacket.PacketId = (UINT16)PACKET_ID::NOTIFY_LOBBY_INFO;
+	lobbyInfoNtfPacket.PacketLength = packetLength;
+	lobbyInfoNtfPacket.RoomCount = lobbyInfoNtfPacket.Room.size();
+
+	char* buffer = new char[packetLength];
+	CopyMemory(buffer, &lobbyInfoNtfPacket, PACKET_HEADER_LENGTH + 4);
+	if (lobbyInfoNtfPacket.Room.size() > 0)
+	{
+		CopyMemory(buffer + PACKET_HEADER_LENGTH + 4, &(*lobbyInfoNtfPacket.Room.begin()), lobbyInfoNtfPacket.Room.size() * 4);
+	}
+	SendPacketFunc(clientIndex_, packetLength, buffer);
+
+	delete[] buffer;
+
+	std::cout << ("ACK_LOBBY_INFO Sended") << std::endl;
+}
+
+
 void PacketManager::ProcessEnterRoom(UINT32 clientIndex_, UINT16 packetSize_, char* pPacket_)
 {
 	auto roomEnterReqPacket = reinterpret_cast<REQ_ROOM_ENTER_PACKET*>(pPacket_);
@@ -322,11 +357,38 @@ void PacketManager::ProcessRoomInfo(UINT32 clientIndex_, UINT16 packetSize_, cha
 	
 	ACK_ROOM_INFO_PACKET roomInfoAckPacket;
 	roomInfoAckPacket.PacketId = (UINT16)PACKET_ID::ACK_ROOM_INFO;
-	roomInfoAckPacket.PacketLength = sizeof(ACK_ROOM_INFO_PACKET);
-	roomInfoAckPacket.Result = (UINT16)RESULT_CODE::NONE;
+	roomInfoAckPacket.Result = (UINT16)RESULT_CODE::ENTER_ROOM_SUCCESS;
 	roomInfoAckPacket.Users = room->GetRoomMemberList();
+	roomInfoAckPacket.UserCount = room->GetRoomMemberList().size();
+	int vectorLength = 0;
+	for (int i = 0; i < roomInfoAckPacket.Users.size(); i++)
+	{
+		vectorLength += roomInfoAckPacket.Users[i].size();
+	}
 
-	SendPacketFunc(clientIndex_, sizeof(ACK_ROOM_INFO_PACKET), (char*)&roomInfoAckPacket);
+	int packetLength = PACKET_HEADER_LENGTH + 2 + 4 + vectorLength;
+	roomInfoAckPacket.PacketLength = packetLength;
+
+	char* buffer = new char[packetLength];
+	CopyMemory(buffer, &roomInfoAckPacket, PACKET_HEADER_LENGTH + 2 + 4);
+
+	if (roomInfoAckPacket.Users.size() > 0)
+	{
+		//std::copy(roomInfoAckPacket.Users.begin(), roomInfoAckPacket.Users.end(), buffer + PACKET_HEADER_LENGTH + 2 + 4);
+		CopyMemory(buffer + PACKET_HEADER_LENGTH + 2 + 4, &(*roomInfoAckPacket.Users.begin()), vectorLength + 1 );
+	}
+
+	for (int i = 0; i < roomInfoAckPacket.Users[0].size(); i++)
+		std::cout << roomInfoAckPacket.Users[0][i];
+
+	std::cout << std::endl;
+
+	for (int i = 0; i < roomInfoAckPacket.Users[0].size(); i++)
+		std::cout << buffer[PACKET_HEADER_LENGTH + 2 + 4 + i];
+
+	SendPacketFunc(clientIndex_, packetLength, buffer);
+	delete[] buffer;
+
 	std::cout << ("ACK_ROOM_INFO_PACKET Sended");
 }
 
@@ -353,7 +415,7 @@ void PacketManager::ProcessRoomChatMessage(UINT32 clientIndex_, UINT16 packetSiz
 	ACK_ROOM_CHAT_PACKET roomChatAckPacket;
 	roomChatAckPacket.PacketId = (UINT16)PACKET_ID::ACK_ROOM_CHAT;
 	roomChatAckPacket.PacketLength = sizeof(ACK_ROOM_CHAT_PACKET);
-	roomChatAckPacket.Result = (INT16)RESULT_CODE::NONE;
+	roomChatAckPacket.Result = (INT16)RESULT_CODE::CHAT_ROOM_SUCCESS;
 
 	auto reqUser = mUserManager->GetUserByConnIdx(clientIndex_);
 	auto roomNum = reqUser->GetCurrentRoom();
