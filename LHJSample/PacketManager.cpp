@@ -363,7 +363,7 @@ void PacketManager::ProcessRoomInfo(UINT32 clientIndex_, UINT16 packetSize_, cha
 	int vectorLength = 0;
 	for (int i = 0; i < roomInfoAckPacket.Users.size(); i++)
 	{
-		vectorLength += roomInfoAckPacket.Users[i].size();
+		vectorLength += roomInfoAckPacket.Users[i].size() + 1;
 	}
 
 	int packetLength = PACKET_HEADER_LENGTH + 2 + 4 + vectorLength;
@@ -371,20 +371,21 @@ void PacketManager::ProcessRoomInfo(UINT32 clientIndex_, UINT16 packetSize_, cha
 
 	char* buffer = new char[packetLength];
 	CopyMemory(buffer, &roomInfoAckPacket, PACKET_HEADER_LENGTH + 2 + 4);
+	int pos = 0;
 
 	if (roomInfoAckPacket.Users.size() > 0)
 	{
-		//std::copy(roomInfoAckPacket.Users.begin(), roomInfoAckPacket.Users.end(), buffer + PACKET_HEADER_LENGTH + 2 + 4);
-		CopyMemory(buffer + PACKET_HEADER_LENGTH + 2 + 4, &(*roomInfoAckPacket.Users.begin()), vectorLength + 1 );
+		for (int i = 0; i < roomInfoAckPacket.Users.size(); i++)
+		{
+			for (int j = 0; j < roomInfoAckPacket.Users[i].size(); j++)
+			{
+				buffer[PACKET_HEADER_LENGTH + 2 + 4 + pos] = roomInfoAckPacket.Users[i][j];
+				pos++;
+			}
+			buffer[PACKET_HEADER_LENGTH + 2 + 4 + pos] = '\0';
+			pos++;
+		}
 	}
-
-	for (int i = 0; i < roomInfoAckPacket.Users[0].size(); i++)
-		std::cout << roomInfoAckPacket.Users[0][i];
-
-	std::cout << std::endl;
-
-	for (int i = 0; i < roomInfoAckPacket.Users[0].size(); i++)
-		std::cout << buffer[PACKET_HEADER_LENGTH + 2 + 4 + i];
 
 	SendPacketFunc(clientIndex_, packetLength, buffer);
 	delete[] buffer;
