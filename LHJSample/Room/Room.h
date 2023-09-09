@@ -18,7 +18,7 @@ public:
 	std::vector<std::string> GetRoomMemberList();
 
 	void Init(const INT32 roomNum_, const INT32 maxUserCount_);
-	UINT16 EnterUser(User* user_);
+	RESULT_CODE EnterUser(User* user_);
 	void LeaveUser(User* leaveUser_);
 	void NotifyChat(INT32 clientIndex_, const char* userID_, const char* msg_);
 	std::function<void(UINT32, UINT32, char*)> SendPacketFunc;

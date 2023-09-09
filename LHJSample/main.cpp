@@ -15,6 +15,7 @@ int main()
 	//소켓 초기화
 	server.InitSocket();
 	server.BindandListen(gConfig.GetChatServerInfo().Port);
+	server.Init(MAX_CLIENT);
 
 	if (!server.Run(MAX_CLIENT)) // 서버실행
 	{

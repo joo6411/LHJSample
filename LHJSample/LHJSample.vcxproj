@@ -139,6 +139,12 @@
     <ClCompile Include="ChatServer.cpp" />
     <ClCompile Include="ServerNetwork\ClientInfo.cpp" />
     <ClCompile Include="PacketManager.cpp" />
+    <ClCompile Include="User\State\UserStateNone.cpp" />
+    <ClCompile Include="User\State\UserStateConnected.cpp" />
+    <ClCompile Include="User\State\UserStateDisconnect.cpp" />
+    <ClCompile Include="User\State\UserStateInLobby.cpp" />
+    <ClCompile Include="User\State\UserStateRoomEnter.cpp" />
+    <ClCompile Include="User\State\UserStateInRoom.cpp" />
     <ClCompile Include="User\UserManager.cpp" />
     <ClCompile Include="User\User.cpp" />
     <ClCompile Include="RedisManager.cpp" />
@@ -154,12 +160,20 @@
     <ClInclude Include="ServerNetwork\ClientInfo.h" />
     <ClInclude Include="ServerNetwork\Define.h" />
     <ClInclude Include="PacketManager.h" />
+    <ClInclude Include="User\State\UserState.h" />
+    <ClInclude Include="User\State\UserStateNone.h" />
+    <ClInclude Include="User\State\UserStateConnected.h" />
+    <ClInclude Include="User\State\UserStateDisconnect.h" />
+    <ClInclude Include="User\State\UserStateInLobby.h" />
+    <ClInclude Include="User\State\UserStateRoomEnter.h" />
+    <ClInclude Include="User\State\UserStateInRoom.h" />
     <ClInclude Include="User\UserManager.h" />
     <ClInclude Include="User\User.h" />
     <ClInclude Include="RedisManager.h" />
     <ClInclude Include="RedisTaskDefine.h" />
     <ClInclude Include="ResultCode.h" />
     <ClInclude Include="Room\Room.h" />
+    <ClInclude Include="State.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

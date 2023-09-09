@@ -9,26 +9,24 @@
 #include <mutex>
 
 class UserManager;
-class RoomManager;
 class RedisManager;
-class AccountDB;
 
 class PacketManager {
 public:
 	PacketManager() = default;
 	~PacketManager();
 
-	void Init(const UINT32 maxClient_);
+	void Init(const UINT32 maxClient_, UserManager* userManager);
 	bool Run();
 	void End();
 	void ReceivePacketData(const UINT32 clientIndex_, const UINT32 size_, char* pData_);
 	void PushSystemPacket(PacketInfo packet_);
+	//bool CreateAccount(const char* userID, const char* password);
 
 	std::function<void(UINT32, UINT32, char*)> SendPacketFunc;
 
 
 private:
-	void CreateComponent(const UINT32 maxClient_);
 	void ClearConnectionInfo(INT32 clientIndex_);
 	void EnqueuePacketData(const UINT32 clientIndex_);
 	PacketInfo DequePacketData();
@@ -48,14 +46,11 @@ private:
 	void ProcessLeaveRoom(UINT32 clientIndex_, UINT16 packetSize_, char* pPacket_);
 	void ProcessRoomChatMessage(UINT32 clientIndex_, UINT16 packetSize_, char* pPacket_);
 
-
 	typedef void(PacketManager::* PROCESS_RECV_PACKET_FUNCTION)(UINT32, UINT16, char*);
 	std::unordered_map<int, PROCESS_RECV_PACKET_FUNCTION> mRecvFuntionDictionary;
 
 	UserManager* mUserManager;
-	RoomManager* mRoomManager;
 	RedisManager* mRedisMgr;
-	AccountDB* mAccountDB;
 	std::function<void(int, char*)> mSendMQDataFunc;
 	bool mIsRunProcessThread = false;
 	std::thread mProcessThread;
@@ -63,4 +58,3 @@ private:
 	std::deque<UINT32> mInComingPacketUserIndex;
 	std::deque<PacketInfo> mSystemPacketQueue;
 };
-

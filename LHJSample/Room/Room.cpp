@@ -6,11 +6,11 @@ void Room::Init(const INT32 roomNum_, const INT32 maxUserCount_)
 	mMaxUserCount = maxUserCount_;
 }
 
-UINT16 Room::EnterUser(User* user_)
+RESULT_CODE Room::EnterUser(User* user_)
 {
 	if (mCurrentUserCount >= mMaxUserCount)
 	{
-		return (UINT16)RESULT_CODE::ENTER_ROOM_FULL_USER;
+		return RESULT_CODE::ENTER_ROOM_FULL_USER;
 	}
 
 	NOTIFY_ROOM_INFO_PACKET roomInfoNtfyPacket;
@@ -26,8 +26,7 @@ UINT16 Room::EnterUser(User* user_)
 	mUserList.push_back(user_);
 	++mCurrentUserCount;
 
-	user_->EnterRoom(mRoomNum);
-	return (UINT16)RESULT_CODE::ENTER_ROOM_SUCCESS;
+	return RESULT_CODE::ENTER_ROOM_SUCCESS;
 }
 
 void Room::LeaveUser(User* leaveUser_)

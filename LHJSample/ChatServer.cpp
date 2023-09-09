@@ -1,8 +1,57 @@
 #include "ChatServer.h"
-
+#include "User/UserManager.h"
+#include "Room/RoomManager.h"
+#include "DB/AccountDB.h"
+#include "PacketManager.h"
 #include <vector>
 #include <thread>
 #include <iostream>
+
+ChatServer::~ChatServer()
+{
+	if (mUserManager)
+	{
+		delete mUserManager;
+		mUserManager = nullptr;
+	}
+
+	if (mRoomManager)
+	{
+		delete mRoomManager;
+		mUserManager = nullptr;
+	}
+
+	if (mAccountDB)
+	{
+		delete mAccountDB;
+		mAccountDB = nullptr;
+	}
+
+	if (mPacketManager)
+	{
+		delete mPacketManager;
+		mPacketManager = nullptr;
+	}
+}
+
+void ChatServer::Init(const UINT32 maxClient)
+{
+	UINT32 startRoomNumber = 0;
+	UINT32 maxRoomCount = 10;
+	UINT32 maxRoomUserCount = 4;
+
+	mRoomManager = new RoomManager;
+	mRoomManager->Init(startRoomNumber, maxRoomCount, maxRoomUserCount);
+
+	mAccountDB = new AccountDB();
+	mAccountDB->Init();
+
+	mUserManager = new UserManager;
+	mUserManager->Init(maxClient, mAccountDB, mRoomManager);
+
+	mPacketManager = new PacketManager();
+	mPacketManager->Init(maxClient, mUserManager);
+}
 
 void ChatServer::OnConnect(const UINT32 clientIndex_)
 {
@@ -34,9 +83,10 @@ bool ChatServer::Run(const UINT32 maxClient)
 		SendMsg(clientIndex_, packetSize, pSendPacket);
 	};
 
-	mPacketManager = std::make_unique<PacketManager>();
 	mPacketManager->SendPacketFunc = sendPacketFunc;
-	mPacketManager->Init(maxClient);
+	mRoomManager->SendPacketFunc = mPacketManager->SendPacketFunc;
+	mUserManager->SetSendPacketFunc(sendPacketFunc);
+	
 	if (!mPacketManager->Run())
 	{
 		return false;

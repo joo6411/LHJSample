@@ -2,17 +2,22 @@
 
 #include "ServerNetwork/IOCPServer.h"
 #include "Packet.h"
-#include "PacketManager.h"
 #include <deque>
 #include <mutex>
 
+class AccountDB;
+class RoomManager;
+class RedisManager;
+class UserManager;
+class PacketManager;
 
 class ChatServer : public IOCPServer
 {
 public:
 	ChatServer() = default;
-	virtual ~ChatServer() = default;
+	~ChatServer();
 
+	void Init(const UINT32 maxClient);
 	virtual void OnConnect(const UINT32 clientIndex_) override;
 	virtual void OnClose(const UINT32 clientIndex_) override;
 	virtual void OnReceive(const UINT32 clientIndex_, const UINT32 size_, char* pData_) override;
@@ -21,5 +26,9 @@ public:
 	void End();
 
 private:
-	std::unique_ptr<PacketManager> mPacketManager;
+	PacketManager* mPacketManager;
+	AccountDB* mAccountDB;
+	RoomManager* mRoomManager;
+	//RedisManager* mRedisMgr;
+	UserManager* mUserManager;
 };
