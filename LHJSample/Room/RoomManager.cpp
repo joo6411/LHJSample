@@ -12,10 +12,18 @@ void RoomManager::Init(const INT32 beginRoomNumber_, const INT32 maxRoomCount_, 
 	for (auto i = 0; i < maxRoomCount_; i++)
 	{
 		mRoomList[i] = new Room();
-		mRoomList[i]->SendPacketFunc = SendPacketFunc;
 		mRoomList[i]->Init((i + beginRoomNumber_), maxRoomUserCount_);
 	}
 }
+
+void RoomManager::SetSendPacketFunc(std::function<void(UINT32, UINT32, char*)> sendpacketfunc)
+{
+	for (auto i = 0; i < mRoomList.size(); i++)
+	{
+		mRoomList[i]->SendPacketFunc = sendpacketfunc;
+	}
+}
+
 
 RESULT_CODE RoomManager::EnterUser(INT32 roomNumber_, User* user_)
 {

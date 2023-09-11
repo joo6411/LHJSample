@@ -13,6 +13,7 @@ public:
 	RESULT_CODE LeaveUser(INT32 roomNumber_, User* user_);
 	Room* GetRoomByNumber(INT32 number_);
 	std::vector<int> GetRoomList();
+	void SetSendPacketFunc(std::function<void(UINT32, UINT32, char*)> sendpacketfunc);
 
 	std::function<void(UINT32, UINT16, char*)> SendPacketFunc;
 

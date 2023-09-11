@@ -84,7 +84,8 @@ bool ChatServer::Run(const UINT32 maxClient)
 	};
 
 	mPacketManager->SendPacketFunc = sendPacketFunc;
-	mRoomManager->SendPacketFunc = mPacketManager->SendPacketFunc;
+	mRoomManager->SetSendPacketFunc(sendPacketFunc);
+	//mRoomManager->SendPacketFunc = mPacketManager->SendPacketFunc;
 	mUserManager->SetSendPacketFunc(sendPacketFunc);
 	
 	if (!mPacketManager->Run())

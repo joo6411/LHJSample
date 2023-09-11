@@ -77,12 +77,18 @@ bool AccountDB::SelectAccount(const std::string& id, const std::string& pw)
 			//strPassword.replace(strPassword.find(" "), strPassword.length(), "");
 			if (!strPassword.compare(pw))
 			{
+				SQLFreeStmt(hstmt, SQL_UNBIND);
+				SQLFreeStmt(hstmt, SQL_CLOSE);
 				return true;
 			}
 		}
 
+		SQLFreeStmt(hstmt, SQL_UNBIND);
+		SQLFreeStmt(hstmt, SQL_CLOSE);
 		return false;
 	}
 
+	SQLFreeStmt(hstmt, SQL_UNBIND);
+	SQLFreeStmt(hstmt, SQL_CLOSE);
 	return false;
 }
