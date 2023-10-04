@@ -181,8 +181,7 @@ struct ACK_ROOM_LEAVE_PACKET : public PACKET_HEADER
 
 struct NOTIFY_ROOM_LEAVE_PACKET : public PACKET_HEADER
 {
-	INT16 Result;
-	const char* LeaveUser;
+	char LeaveUser[MAX_USER_ID_LEN + 1];
 };
 
 

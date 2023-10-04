@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.VisualBasic.ApplicationServices;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -142,8 +143,18 @@ namespace LHJSampleClientCS
 
     public class NOTIFY_ROOM_INFO_PACKET
     {
+        public string UserID;
+
+        public bool FromBytes(byte[] bodyData)
+        {
+            UserID = Encoding.UTF8.GetString(bodyData, 0, PacketDef.MAX_USER_ID_BYTE_LENGTH);
+            UserID = UserID.Replace("\0", string.Empty);
+            return true;
+        }
+
+        /*
         public int UserCount = 0;
-        public List<Int64> UserUniqueIdList = new List<Int64>();
+        //public List<Int64> UserUniqueIdList = new List<Int64>();
         public List<string> UserIDList = new List<string>();
 
         public bool FromBytes(byte[] bodyData)
@@ -154,7 +165,7 @@ namespace LHJSampleClientCS
 
             for (int i = 0; i < userCount; ++i)
             {
-                var uniqeudId = BitConverter.ToInt64(bodyData, readPos);
+                //var uniqeudId = BitConverter.ToInt64(bodyData, readPos);
                 readPos += 8;
 
                 var idlen = (SByte)bodyData[readPos];
@@ -163,13 +174,14 @@ namespace LHJSampleClientCS
                 var id = Encoding.UTF8.GetString(bodyData, readPos, idlen);
                 readPos += idlen;
 
-                UserUniqueIdList.Add(uniqeudId);
+                //UserUniqueIdList.Add(uniqeudId);
                 UserIDList.Add(id);
             }
 
             UserCount = userCount;
             return true;
         }
+        */
     }
 
     public class REQ_ROOM_INFO_PACKET
@@ -202,15 +214,16 @@ namespace LHJSampleClientCS
             {
                 if (bodyData[i] == '\0')
                 {
-                    idLen.Add(i - currentPos + 1);
-                    currentPos = i;
+                    idLen.Add(i - currentPos);
+                    currentPos = i + 1;
                 }
             }
 
             for (int i = 0; i < userCount; ++i)
             {
-                var id = Encoding.UTF8.GetString(bodyData, readPos, idLen[i]);
-                readPos += idLen[i];
+                var id = Encoding.UTF8.GetString(bodyData, readPos, idLen[i] + 1);
+                id = id.Replace("\0", string.Empty);
+                readPos += idLen[i] + 1;
 
                 UserIDList.Add(id);
             }
@@ -219,29 +232,6 @@ namespace LHJSampleClientCS
             return true;
         }
     }
-
-    public class RoomNewUserNtfPacket
-    {
-        public Int64 UserUniqueId;
-        public string UserID;
-
-        public bool FromBytes(byte[] bodyData)
-        {
-            var readPos = 0;
-
-            UserUniqueId = BitConverter.ToInt64(bodyData, readPos);
-            readPos += 8;
-
-            var idlen = (SByte)bodyData[readPos];
-            ++readPos;
-
-            UserID = Encoding.UTF8.GetString(bodyData, readPos, idlen);
-            readPos += idlen;
-
-            return true;
-        }
-    }
-
 
     public class REQ_ROOM_CHAT_PACKET
     {
@@ -287,8 +277,15 @@ namespace LHJSampleClientCS
         }
     }
 
+    public class REQ_ROOM_LEAVE_PACKET
+    {
+        public byte[] ToBytes()
+        {
+            return null;
+        }
+    }
 
-    public class RoomLeaveResPacket
+    public class ACK_ROOM_LEAVE_PACKET
     {
         public UInt16 Result;
 
@@ -299,35 +296,17 @@ namespace LHJSampleClientCS
         }
     }
 
-    public class RoomLeaveUserNtfPacket
+    public class NOTIFY_ROOM_LEAVE_PACKET
     {
-        public Int64 UserUniqueId;
+        public string UserID;
 
         public bool FromBytes(byte[] bodyData)
         {
-            UserUniqueId = BitConverter.ToInt64(bodyData, 0);
+            UserID = Encoding.UTF8.GetString(bodyData, 0, PacketDef.MAX_USER_ID_BYTE_LENGTH);
+            UserID = UserID.Replace("\0", string.Empty);
             return true;
         }
     }
-
-
-
-    public class RoomRelayNtfPacket
-    {
-        public Int64 UserUniqueId;
-        public byte[] RelayData;
-
-        public bool FromBytes(byte[] bodyData)
-        {
-            UserUniqueId = BitConverter.ToInt64(bodyData, 0);
-
-            var relayDataLen = bodyData.Length - 8;
-            RelayData = new byte[relayDataLen];
-            Buffer.BlockCopy(bodyData, 8, RelayData, 0, relayDataLen);
-            return true;
-        }
-    }
-
 
     public class PingRequest
     {

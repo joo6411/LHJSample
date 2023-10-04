@@ -80,7 +80,8 @@ namespace LHJSampleClientCS
         ROOM_TOO_MANY_PACKET = 62,
         ROOM_FULL = 63,
 
-        LEAVE_ROOM_INVALID_ROOM_INDEX = 70,
+        LEAVE_ROOM_SUCCESS = 70,
+        LEAVE_ROOM_FAIL = 71,
 
         CHAT_ROOM_INVALID_ROOM_NUMBER = 80,
 

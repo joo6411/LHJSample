@@ -10,7 +10,7 @@ enum class UserState
     InLobby,
     RoomEnter,
     InRoom,
-    //RoomLeave,
+    RoomExit,
 };
 
 class User;

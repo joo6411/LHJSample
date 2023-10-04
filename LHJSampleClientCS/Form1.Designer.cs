@@ -49,6 +49,7 @@
             this.ChatSend = new System.Windows.Forms.Button();
             this.ChatBox = new System.Windows.Forms.TextBox();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.RoomExit = new System.Windows.Forms.Button();
             this.label5 = new System.Windows.Forms.Label();
             this.listBoxRoomChatMsg = new System.Windows.Forms.ListBox();
             this.logListBox = new System.Windows.Forms.ListBox();
@@ -243,10 +244,10 @@
             // 
             this.UserList.FormattingEnabled = true;
             this.UserList.ItemHeight = 25;
-            this.UserList.Location = new System.Drawing.Point(21, 100);
+            this.UserList.Location = new System.Drawing.Point(21, 65);
             this.UserList.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.UserList.Name = "UserList";
-            this.UserList.Size = new System.Drawing.Size(190, 254);
+            this.UserList.Size = new System.Drawing.Size(190, 229);
             this.UserList.TabIndex = 7;
             // 
             // ChatSend
@@ -270,6 +271,7 @@
             // 
             // groupBox4
             // 
+            this.groupBox4.Controls.Add(this.RoomExit);
             this.groupBox4.Controls.Add(this.label5);
             this.groupBox4.Controls.Add(this.listBoxRoomChatMsg);
             this.groupBox4.Controls.Add(this.ChatBox);
@@ -284,10 +286,21 @@
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "채팅방";
             // 
+            // RoomExit
+            // 
+            this.RoomExit.Location = new System.Drawing.Point(21, 313);
+            this.RoomExit.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.RoomExit.Name = "RoomExit";
+            this.RoomExit.Size = new System.Drawing.Size(190, 47);
+            this.RoomExit.TabIndex = 12;
+            this.RoomExit.Text = "퇴장";
+            this.RoomExit.UseVisualStyleBackColor = true;
+            this.RoomExit.Click += new System.EventHandler(this.RoomExit_Click);
+            // 
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(21, 65);
+            this.label5.Location = new System.Drawing.Point(21, 30);
             this.label5.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(84, 25);
@@ -378,5 +391,6 @@
         private Label label6;
         private Button RoomListRefreshBtn;
         private Label label7;
+        private Button RoomExit;
     }
 }

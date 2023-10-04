@@ -47,9 +47,8 @@ RESULT_CODE RoomManager::LeaveUser(INT32 roomNumber_, User* user_)
 	{
 		return RESULT_CODE::ROOM_INVALID_INDEX;
 	}
-
-	room->LeaveUser(user_);
-	return RESULT_CODE::NONE;
+	
+	return room->LeaveUser(user_);
 }
 
 Room* RoomManager::GetRoomByNumber(INT32 number_)

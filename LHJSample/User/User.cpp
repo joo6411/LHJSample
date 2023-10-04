@@ -9,7 +9,6 @@
 #include "State/UserStateInLobby.h"
 #include "State/UserStateInRoom.h"
 #include "State/UserStateNone.h"
-#include "State/UserStateRoomEnter.h"
 
 void User::Init(const INT32 index, UserManager* userManager, RoomManager* roomManager)
 {
@@ -19,7 +18,6 @@ void User::Init(const INT32 index, UserManager* userManager, RoomManager* roomMa
 	mStates[UserState::Connected] = new UserStateConnected(this);
 	mStates[UserState::Disconnect] = new UserStateDisConnect(this);
 	mStates[UserState::InLobby] = new UserStateInLobby(this);
-	mStates[UserState::RoomEnter] = new UserStateRoomEnter(this);
 	mStates[UserState::InRoom] = new UserStateInRoom(this);
 	ChangeState(UserState::None);
 	ResetRecvFunction();

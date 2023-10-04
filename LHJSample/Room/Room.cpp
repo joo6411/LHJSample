@@ -14,6 +14,7 @@ RESULT_CODE Room::EnterUser(User* user_)
 	}
 
 	NOTIFY_ROOM_INFO_PACKET roomInfoNtfyPacket;
+	ZeroMemory(&roomInfoNtfyPacket, sizeof(NOTIFY_ROOM_INFO_PACKET));
 	roomInfoNtfyPacket.PacketId = (UINT16)PACKET_ID::NOTIFY_ROOM_INFO;
 	roomInfoNtfyPacket.PacketLength = sizeof(NOTIFY_ROOM_INFO_PACKET);
 	std::string id = user_->GetUserId();
@@ -29,19 +30,24 @@ RESULT_CODE Room::EnterUser(User* user_)
 	return RESULT_CODE::ENTER_ROOM_SUCCESS;
 }
 
-void Room::LeaveUser(User* leaveUser_)
+RESULT_CODE Room::LeaveUser(User* leaveUser_)
 {
 	NOTIFY_ROOM_LEAVE_PACKET roomLeaveNtfyPkt;
+	ZeroMemory(&roomLeaveNtfyPkt, sizeof(NOTIFY_ROOM_LEAVE_PACKET));
 	roomLeaveNtfyPkt.PacketId = (UINT16)PACKET_ID::NOTIFY_ROOM_LEAVE;
 	roomLeaveNtfyPkt.PacketLength = sizeof(roomLeaveNtfyPkt);
 	std::string id = leaveUser_->GetUserId();
-	roomLeaveNtfyPkt.LeaveUser = id.c_str();
-	roomLeaveNtfyPkt.Result = (INT16)RESULT_CODE::NONE;
+	for (int i = 0; i < id.size(); i++)
+	{
+		roomLeaveNtfyPkt.LeaveUser[i] = id[i];
+	}
 	SendToAllUser(sizeof(roomLeaveNtfyPkt), (char*)&roomLeaveNtfyPkt, leaveUser_->GetNetConnIdx(), false);
 
 	mUserList.remove_if([leaveUserId = leaveUser_->GetUserId()](User* pUser) {
 		return leaveUserId == pUser->GetUserId();
 		});
+
+	return RESULT_CODE::LEAVE_ROOM_SUCCESS;
 }
 
 void Room::NotifyChat(INT32 clientIndex_, const char* userID_, const char* msg_)

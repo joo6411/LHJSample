@@ -19,7 +19,7 @@ public:
 
 	void Init(const INT32 roomNum_, const INT32 maxUserCount_);
 	RESULT_CODE EnterUser(User* user_);
-	void LeaveUser(User* leaveUser_);
+	RESULT_CODE LeaveUser(User* leaveUser_);
 	void NotifyChat(INT32 clientIndex_, const char* userID_, const char* msg_);
 	std::function<void(UINT32, UINT32, char*)> SendPacketFunc;
 
