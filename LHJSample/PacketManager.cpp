@@ -26,18 +26,21 @@ void PacketManager::Init(const UINT32 maxClient_, UserManager* userManager)
 	mRecvFuntionDictionary[(int)PACKET_ID::REQ_ROOM_LEAVE] = &PacketManager::ProcessLeaveRoom;
 	mRecvFuntionDictionary[(int)PACKET_ID::REQ_ROOM_CHAT] = &PacketManager::ProcessRoomChatMessage;
 
+	/*
 	mRedisMgr = new RedisManager;// std::make_unique<RedisManager>();
 	mRedisMgr->Init();
-
+	*/
 	mUserManager = userManager;
 }
 
 bool PacketManager::Run()
 {
+	/*
 	if (mRedisMgr->Run(gConfig.GetRedisServerInfo().IP, gConfig.GetRedisServerInfo().Port, 1) == false)
 	{
 		return false;
 	}
+	*/
 
 	mIsRunProcessThread = true;
 	mProcessThread = std::thread([this]() { ProcessPacket(); });
@@ -84,6 +87,7 @@ void PacketManager::ProcessPacket()
 			ProcessRecvPacket(packetData.ClientIndex, packetData.PacketId, packetData.DataSize, packetData.pDataPtr);
 		}
 
+		/*
 		auto task = mRedisMgr->TakeResponseTask();
 		if (task.TaskID != RedisTaskID::INVALID)
 		{
@@ -96,6 +100,7 @@ void PacketManager::ProcessPacket()
 		{
 			std::this_thread::sleep_for(std::chrono::milliseconds(1));
 		}
+		*/
 	}
 }
 
