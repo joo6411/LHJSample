@@ -1,4 +1,4 @@
-﻿USE [AccountDB]
+﻿USE [Account]
 GO
 
 

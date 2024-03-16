@@ -1,4 +1,4 @@
-﻿USE [AccountDB]
+﻿USE [Account]
 GO
 
 SET ANSI_NULLS ON
